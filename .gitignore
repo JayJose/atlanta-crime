@@ -1,2 +1,5 @@
 .DS_Store
 .venvs
+.ipynb_checkpoints/
+Untitled.ipynb
+data.csv
