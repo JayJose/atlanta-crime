@@ -40,8 +40,11 @@ else:
 
 # df.to_csv(path_or_buf='data.csv', index=False, header=True)
 
-app = dash.Dash(__name__)
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+
 app.title = 'Atlanta Crime'
+server = app.server
 
 app.layout = html.Div(children=[
     html.H1(children='2021 Atlanta Crime Map'),
