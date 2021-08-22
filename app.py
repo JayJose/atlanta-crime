@@ -9,29 +9,34 @@ import plotly.express as px
 import pandas as pd
 from azure.cosmos.cosmos_client import CosmosClient
 
-# endpoint = "https://cosmos-crime.documents.azure.com:443/"
-# key = 'IGyBUSMRRwRyhG4hrY2Y0DI6njC5KvS4myty6VryGFqZzZT8T8Maajsc356bGKldq1YFt9Dvmtr8BhgLfdEgyw=='
+endpoint = "https://cosmos-crime.documents.azure.com:443/"
+key = 'IGyBUSMRRwRyhG4hrY2Y0DI6njC5KvS4myty6VryGFqZzZT8T8Maajsc356bGKldq1YFt9Dvmtr8BhgLfdEgyw=='
 
-# # <create_cosmos_client>
-# client = CosmosClient(endpoint, {'masterKey': key})
+env = 'local'
 
-# database_id = "Crime"
-# container_id = "Crime"
-# database = client.get_database_client(database_id)
-# container = database.get_container_client(container_id)
+if env == 'local':
+    df = pd.read_csv('data.csv')
 
-# # create empty list to store query results
-# df_list = []
+else:
+    # create_cosmos_client
+    client = CosmosClient(endpoint, {'masterKey': key})
 
-# for item in container.query_items(
-#     query='SELECT * FROM c',
-#     enable_cross_partition_query=True):
-#     df_list.append(dict(item))
+    database_id = "Crime"
+    container_id = "Crime"
+    database = client.get_database_client(database_id)
+    container = database.get_container_client(container_id)
 
-# convert list to pandas DataFrame
-# df = pd.DataFrame(df_list)
+    # create empty list to store query results
+    df_list = []
 
-df = pd.read_csv('data.csv')
+    for item in container.query_items(
+        query='SELECT * FROM c',
+        enable_cross_partition_query=True):
+        df_list.append(dict(item))
+
+    # convert list to pandas DataFrame
+    df = pd.DataFrame(df_list)
+
 # df.to_csv(path_or_buf='data.csv', index=False, header=True)
 
 df['rpt_datetime'] = pd.to_datetime(df.rpt_date)
@@ -41,10 +46,6 @@ def get_day_of_year(x):
 
 df['rpt_day'] = df.apply(lambda row: get_day_of_year(row['rpt_datetime']), axis = 1)
 
-# scale dates
-# df['scaled_date'] = df['occ']
-
-
 # build map
 token = "pk.eyJ1IjoiamF5am9zZSIsImEiOiJja3AxZjFsZ2QxYXR4Mm9xamRlNGExcHZ3In0.FvpQMwY1cqyylbMiWxGhRQ"
 px.set_mapbox_access_token(token)
@@ -53,9 +54,9 @@ fig = px.scatter_mapbox(df, lat="lat", lon="long",
                         #color=df.UC2_Literal.astype(str),
                         color="rpt_day",
                         color_continuous_scale='peach',
-                        opacity=0.5,
+                        opacity=1.0,
                         hover_name=df.neighborhood.astype(str),
-                        size_max=15, zoom=10,
+                        size_max=10, zoom=10,
                         height = 800)
 
 
@@ -71,12 +72,20 @@ dash_app.layout = html.Div(children=[
     '''),
     html.P("Select a neighborhood"),
     dcc.Dropdown(
-        id='neighborhood_dd', 
-        options=[{"value": n, "label": n} 
-                 for n in df.neighborhood.sort_values().astype(str).unique()],
-        value='Midtown'
+        id='neighborhood-dropdown',
+        options=[{"value": n, "label": n}
+            for n in df.neighborhood.sort_values().astype(str).unique()],
+        #value='Midtown',
+        multi=True,
+        placeholder="Select neighborhood(s)"
     ),
-
+    dcc.Dropdown(
+        id='crime-dropdown',
+        options=[{"value": n, "label": n}
+            for n in df.UC2_Literal.sort_values().astype(str).unique()],
+        multi=True,
+        placeholder="Select crime(s)"
+    ),
     dcc.Graph(
         id='example-graph',
         figure=fig
