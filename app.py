@@ -7,6 +7,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
+from sklearn.preprocessing import MinMaxScaler
 import plotly.express as px
 import pandas as pd
 from azure.cosmos.cosmos_client import CosmosClient
@@ -26,72 +27,107 @@ else:
     # df.to_csv(path_or_buf='data.csv', index=False, header=True)
 
 # transform dataset
-df['Crime'] = df.UC2_Literal
+df['Crime'] = df.UC2_Literal.str.title()
 
 # dates
-df['rpt_datetime'] = pd.to_datetime(df.rpt_date)
+df['occur_datetime'] = pd.to_datetime(df.occur_date)
+df = df[~df.occur_datetime.isna()]
+df = df[df.occur_datetime >= '2021-01-01 00:00:00']
 
 def get_day_of_year(x):
     return pd.Period(x, freq='H').dayofyear
 
-df['rpt_day'] = df.apply(lambda row: get_day_of_year(row['rpt_datetime']), axis = 1)
+df['occur_day'] = df.apply(lambda row: get_day_of_year(row['occur_datetime']), axis = 1)
+
+# scale stuff
+min_max_scaler = MinMaxScaler()
+df['scaled_occur_day'] = min_max_scaler.fit_transform(df['occur_day'].values.reshape(-1, 1))
+
+map_styles = ['open-street-map', 'carto-positron', 'carto-darkmatter', 'stamen-terrain', 'stamen-toner']
 
 
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+external_stylesheets = [dbc.themes.BOOTSTRAP]#['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.title = 'Atlanta Crime'
 server = app.server
 
-app.layout = html.Div(children=[
-    html.H2(children='2021 Atlanta Crime Map'),
+app.layout = dbc.Container(
+    children=[
+        html.H2(children='2021 Atlanta Crime Map'),
+        html.Div(children='Data current as of 27 August 2021'),
+        html.Br(),
+        dbc.Row(
+            [
+            dbc.Col(dcc.Dropdown(
+                id='nhood-dropdown',
+                options=[{"value": n, "label": n}
+                    for n in df.neighborhood.sort_values().astype(str).unique()],
+                multi=True,
+                placeholder="Select neighborhood(s)"
+            )),
+            dbc.Col(dcc.Dropdown(
+                id='crime-dropdown',
+                options=[{"value": n, "label": n}
+                    for n in df.Crime.sort_values().astype(str).unique()],
+                multi=True,
+                placeholder="Select crime(s)"
+            )),
+            dbc.Col(dcc.Dropdown(
+                id='legend-dropdown',
+                options=[
+                    {'label': 'Crime', 'value': 'Crime'},
+                    {'label': 'Occurence', 'value': 'scaled_occur_day'},                    
+                    ],
+                value='Crime',
+                multi=False,
+                clearable=False,
+                placeholder = "Select a legend"
+            )),
+            dbc.Col(dcc.Dropdown(
+                id='mapstyle-dropdown',
+                options=[{"value": m, "label": m}
+                    for m in map_styles
+                ],
+                value='carto-positron',
+                multi=False,
+                clearable=False,
+                placeholder = "Select a map style"
+            ))            
+            ]
+        ),
 
-    html.Div(children='''
-        Data current as of 27 August 2021
-    '''),
-    html.Br(),
-    dcc.Dropdown(
-        id='nhood-dropdown',
-        options=[{"value": n, "label": n}
-            for n in df.neighborhood.sort_values().astype(str).unique()],
-        multi=True,
-        placeholder="Select neighborhood(s)"
-    ),
-    dcc.Dropdown(
-        id='crime-dropdown',
-        options=[{"value": n, "label": n}
-            for n in df.Crime.sort_values().astype(str).unique()],
-        multi=True,
-        placeholder="Select crime(s)"
-    ),
-    html.Br(),
-    html.P(children="Filter by date"),
-    dcc.RangeSlider(
-        id='rpt-range-slider',
-        min=df['rpt_day'].min(), #min
-        max=df['rpt_day'].max(), #max
-        step=1,
-        value=[df['rpt_day'].min(), df['rpt_day'].max()],
-        marks = {
-            1: {'label': 'Jan 1'},
-            91: {'label': 'Apr 1'},
-            182: {'label': 'Jul 1'},
-            238: {'label': 'Aug 26'}
-        },
-        # tooltip = {
-        #     'always_visible': True
-        # },
-        #updatemode='drag'
-    ),
-    dcc.Graph(
-        id="atl-map"
-    ),
-    # dcc.Loading(
-    #     id="loading-1",
-    #     children=[dcc.Graph(id="atl-map")],
-    #     type="circle"
-    # ),
-])
+        html.Br(),
+        html.P(children="Filter by date"),
+        dcc.RangeSlider(
+            id='occur-range-slider',
+            min=df['occur_day'].min(),
+            max=df['occur_day'].max(),
+            step=1,
+            value=[df['occur_day'].min(), df['occur_day'].max()],
+            marks = {
+                1: {'label': 'Jan 1'},
+                91: {'label': 'Apr 1'},
+                182: {'label': 'Jul 1'},
+                238: {'label': 'Aug 26'}
+            },
+            # tooltip = {
+            #     'always_visible': True
+            # },
+            #updatemode='drag'
+        ),
+        dcc.Graph(
+            id="atl-map"
+        ),
+        # dcc.Loading(
+        #     id="loading-1",
+        #     children=[dcc.Graph(id="atl-map")],
+        #     type="circle"
+        # ),
+        
+    ], # close children
+    fluid = True,
+) # close layout
 
 # build map
 # token = "pk.eyJ1IjoiamF5am9zZSIsImEiOiJja3AxZjFsZ2QxYXR4Mm9xamRlNGExcHZ3In0.FvpQMwY1cqyylbMiWxGhRQ"
@@ -102,9 +138,11 @@ app.layout = html.Div(children=[
     Output('atl-map', 'figure'),
     Input('nhood-dropdown', 'value'),
     Input('crime-dropdown', 'value'),
-    Input('rpt-range-slider', 'value'),
+    Input('occur-range-slider', 'value'),
+    Input('legend-dropdown', 'value'),
+    Input('mapstyle-dropdown', 'value'),
 )
-def update_map(neighborhood, crime, slider_values):
+def update_map(neighborhood, crime, slider_values, legend, map_style):
 
     # if no neighborhood is selected...
     if neighborhood is None or not neighborhood:
@@ -113,13 +151,12 @@ def update_map(neighborhood, crime, slider_values):
     else:
         df_map = df[df.neighborhood.isin(neighborhood)]
 
-    df_map= df_map[(df_map['rpt_day'] > slider_values[0]) & (df_map['rpt_day'] <= slider_values[1])]
+    df_map= df_map[(df_map['occur_day'] > slider_values[0]) & (df_map['occur_day'] <= slider_values[1])]
 
     fig = px.scatter_mapbox(df_map, lat="lat", lon="long",
-                        color="Crime",
-                        #color="rpt_day",
-                        #color_continuous_scale='peach',
+                        color=legend,
                         color_discrete_sequence=px.colors.qualitative.T10,
+                        color_continuous_scale='thermal',
                         opacity=0.75,
                         hover_name="Crime",
                         hover_data={
@@ -127,18 +164,21 @@ def update_map(neighborhood, crime, slider_values):
                             'long': False,
                             'neighborhood': True,
                             'location': True,
-                            'rpt_date': True
+                            'occur_date': True
                         },
-                        size_max=10, zoom=10,
-                        height = 800)
+                        size_max=15, zoom=10,
+                        height = 750
+                        )
 
-    fig.update_layout(legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=1.02,
-        xanchor="right",
-        x=1),
-        mapbox_style="carto-positron",
+    fig.update_layout(
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        ),
+        mapbox_style=map_style,
         uirevision=True,
     )                        
 
