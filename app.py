@@ -15,7 +15,7 @@ from azure.cosmos.cosmos_client import CosmosClient
 endpoint = "https://cosmos-crime.documents.azure.com:443/"
 key = 'IGyBUSMRRwRyhG4hrY2Y0DI6njC5KvS4myty6VryGFqZzZT8T8Maajsc356bGKldq1YFt9Dvmtr8BhgLfdEgyw=='
 
-env = 'local'
+env = 'cloud'
 
 if env == 'local':
     df = pd.read_csv('data.csv')
