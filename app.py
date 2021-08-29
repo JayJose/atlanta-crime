@@ -1,78 +1,52 @@
-
-
-
 import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 
-from sklearn.preprocessing import MinMaxScaler
 import plotly.express as px
 import pandas as pd
 from azure.cosmos.cosmos_client import CosmosClient
 
-endpoint = "https://cosmos-crime.documents.azure.com:443/"
-key = 'IGyBUSMRRwRyhG4hrY2Y0DI6njC5KvS4myty6VryGFqZzZT8T8Maajsc356bGKldq1YFt9Dvmtr8BhgLfdEgyw=='
+from get_data import generate_data
 
-env = 'cloud'
+# get crime data
+df = generate_data(env='local')
 
-if env == 'local':
-    df = pd.read_csv('data.csv')
-
-else:
-    url = "https://sacrimeapp.blob.core.windows.net/crime-data/certified/COBRA-2021.csv?sp=rl&st=2021-08-28T15:13:54Z&se=2022-01-01T04:00:00Z&sv=2020-08-04&sr=b&sig=SGTOlZ9OKxP1rJ6ccdp7%2BV8Lvb1skr25vw0TgYUQuiI%3D"
-    df = pd.read_csv(url)
-    
-    # df.to_csv(path_or_buf='data.csv', index=False, header=True)
-
-# transform dataset
-df['Crime'] = df.UC2_Literal.str.title()
-
-# dates
-df['occur_datetime'] = pd.to_datetime(df.occur_date)
-df = df[~df.occur_datetime.isna()]
-df = df[df.occur_datetime >= '2021-01-01 00:00:00']
-
-def get_day_of_year(x):
-    return pd.Period(x, freq='H').dayofyear
-
-df['occur_day'] = df.apply(lambda row: get_day_of_year(row['occur_datetime']), axis = 1)
-
-# scale stuff
-min_max_scaler = MinMaxScaler()
-df['scaled_occur_day'] = min_max_scaler.fit_transform(df['occur_day'].values.reshape(-1, 1))
-
+# styling
 map_styles = ['open-street-map', 'carto-positron', 'carto-darkmatter', 'stamen-terrain', 'stamen-toner']
-
-
 external_stylesheets = [dbc.themes.BOOTSTRAP]#['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.title = 'Atlanta Crime'
 server = app.server
 
+# configure app layout
 app.layout = dbc.Container(
     children=[
         html.H2(children='2021 Atlanta Crime Map'),
         html.Div(children='Data current as of 27 August 2021'),
         html.Br(),
-        dbc.Row(
-            [
+        dbc.Row([
+            dbc.Col(html.P('Filter by neighborhood')),
+            dbc.Col(html.P('Filter by crime')),
+            dbc.Col(html.P('Set legend')),
+            dbc.Col(html.P('Set map layer')),
+        ]), # end row
+        dbc.Row([
             dbc.Col(dcc.Dropdown(
                 id='nhood-dropdown',
                 options=[{"value": n, "label": n}
                     for n in df.neighborhood.sort_values().astype(str).unique()],
                 multi=True,
-                placeholder="Select neighborhood(s)"
-            )),
+                placeholder="Select neighborhood(s)")),
             dbc.Col(dcc.Dropdown(
                 id='crime-dropdown',
                 options=[{"value": n, "label": n}
                     for n in df.Crime.sort_values().astype(str).unique()],
                 multi=True,
-                placeholder="Select crime(s)"
-            )),
+                placeholder="Select crime(s)")),
             dbc.Col(dcc.Dropdown(
                 id='legend-dropdown',
                 options=[
@@ -82,8 +56,7 @@ app.layout = dbc.Container(
                 value='Crime',
                 multi=False,
                 clearable=False,
-                placeholder = "Select a legend"
-            )),
+                placeholder = "Select a legend")),
             dbc.Col(dcc.Dropdown(
                 id='mapstyle-dropdown',
                 options=[{"value": m, "label": m}
@@ -92,11 +65,8 @@ app.layout = dbc.Container(
                 value='carto-positron',
                 multi=False,
                 clearable=False,
-                placeholder = "Select a map style"
-            ))            
-            ]
-        ),
-
+                placeholder = "Select a map style"))
+            ]), # end row
         html.Br(),
         html.P(children="Filter by date"),
         dcc.RangeSlider(
@@ -163,8 +133,10 @@ def update_map(neighborhood, crime, slider_values, legend, map_style):
                             'lat': False,
                             'long': False,
                             'neighborhood': True,
-                            'location': True,
-                            'occur_date': True
+                            'Address': True,
+                            'occur_date': True,
+                            'scaled_occur_day': False,
+                            'offense_id': True,
                         },
                         size_max=15, zoom=10,
                         height = 750
