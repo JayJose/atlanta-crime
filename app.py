@@ -13,7 +13,6 @@ from get_data import generate_data
 
 # get crime data
 df = generate_data(env='cloud')
-df = df[df.neighborhood == 'Midtown']
 
 last_rec = df.occur_datetime.sort_values(ascending=False).dt.strftime('%d %b %Y').iloc[0]
 
@@ -22,7 +21,7 @@ map_styles = ['open-street-map', 'carto-positron', 'carto-darkmatter', 'stamen-t
 external_stylesheets = [dbc.themes.BOOTSTRAP]
 
 dash_app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-server = dash_app.server
+app = dash_app.server
 
 dash_app.title = 'Atlanta Crime'
 
@@ -67,11 +66,16 @@ dash_app.layout = dbc.Container(
                 dbc.Card([
                     dbc.CardBody([
                         html.H4(id="crime-card"),
-                        html.P("Crimes", className="card-text")]),
+                        html.P("Crimes in 2021", className="card-text")]),
                     ]),
+                dbc.Card([
+                    dbc.CardBody([
+                        html.H4("56% increase", id="crime-change"),
+                        html.P("2021 vs. 2020", className="card-text")]),
+                    ]),                    
             dcc.Graph(id='crime-bars')
             ], width = 3),
-        dbc.Col(dcc.Graph(id="atl-map"))
+        dbc.Col(dcc.Graph(id="atl-map"), width = 9)
         ])
     ], # close children
     fluid = True,
@@ -123,12 +127,11 @@ def update_map(neighborhood, slider_values,): #map_style):
 
     fig.update_layout(
         legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="right",
-            x=1
-        ),
+        yanchor="top",
+        y=0.99,
+        xanchor="left",
+        x=0.01),
+        margin=dict(l=10, r=10, t=10, b=10),
         mapbox_style="carto-positron",#map_style,
         uirevision=True,
     )
