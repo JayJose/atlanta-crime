@@ -28,8 +28,11 @@ dash_app.title = 'Atlanta Crime'
 # configure app layout
 dash_app.layout = dbc.Container(
     children=[
-        dbc.Row(html.H2(children='2021 Atlanta Crime Map')),
-        dbc.Row(html.A("Data current as of " + last_rec, href='https://www.atlantapd.org/i-want-to/crime-data-downloads')),
+        dbc.Row(dbc.Col(html.H2(children='2021 Atlanta Crime Map'))),
+        dbc.Row([
+            dbc.Col(html.A("Data current as of " + last_rec, href='https://www.atlantapd.org/i-want-to/crime-data-downloads'), width = 3),
+            dbc.Col(html.P("Filter by date crime occurred"), width = 4)
+        ]),
         html.Br(),
         dbc.Row([
             dbc.Col(dcc.Dropdown(
@@ -143,7 +146,7 @@ def update_map(neighborhood, slider_values,): #map_style):
 
     crimes = len(df_map)
 
-    return fig, crimes, fig2
+    return fig, f"{crimes:,}", fig2
 
 if __name__ == '__main__':
     dash_app.run_server(debug=True)
