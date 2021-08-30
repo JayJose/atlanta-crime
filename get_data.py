@@ -1,10 +1,6 @@
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 
-# cosmos creds
-endpoint = "https://cosmos-crime.documents.azure.com:443/"
-key = 'IGyBUSMRRwRyhG4hrY2Y0DI6njC5KvS4myty6VryGFqZzZT8T8Maajsc356bGKldq1YFt9Dvmtr8BhgLfdEgyw=='
-
 def create_local_data():
     url = "https://sacrimeapp.blob.core.windows.net/crime-data/certified/COBRA-2021.csv?sp=rl&st=2021-08-28T15:13:54Z&se=2022-01-01T04:00:00Z&sv=2020-08-04&sr=b&sig=SGTOlZ9OKxP1rJ6ccdp7%2BV8Lvb1skr25vw0TgYUQuiI%3D"
     df = pd.read_csv(url)
