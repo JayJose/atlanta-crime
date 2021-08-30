@@ -12,7 +12,7 @@ from azure.cosmos.cosmos_client import CosmosClient
 from get_data import generate_data
 
 # get crime data
-df = generate_data(env='local')
+df = generate_data(env='cloud')
 
 last_rec = df.occur_datetime.sort_values(ascending=False).dt.strftime('%d %b %Y').iloc[0]
 
@@ -20,13 +20,13 @@ last_rec = df.occur_datetime.sort_values(ascending=False).dt.strftime('%d %b %Y'
 map_styles = ['open-street-map', 'carto-positron', 'carto-darkmatter', 'stamen-terrain', 'stamen-toner']
 external_stylesheets = [dbc.themes.BOOTSTRAP]
 
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-server = app.server
+dash_app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+server = dash_app.server
 
-app.title = 'Atlanta Crime'
+dash_app.title = 'Atlanta Crime'
 
 # configure app layout
-app.layout = dbc.Container(
+dash_app.layout = dbc.Container(
     children=[
         dbc.Row(html.H2(children='2021 Atlanta Crime Map')),
         dbc.Row(html.A("Data current as of " + last_rec, href='https://www.atlantapd.org/i-want-to/crime-data-downloads')),
@@ -82,7 +82,7 @@ app.layout = dbc.Container(
 # px.set_mapbox_access_token(token)
 
 
-@app.callback(
+@dash_app.callback(
     Output('atl-map', 'figure'),
     Output('crime-card', 'children'),
     Output('crime-bars', 'figure'),
@@ -143,4 +143,4 @@ def update_map(neighborhood, slider_values, map_style):
     return fig, crimes, fig2
 
 if __name__ == '__main__':
-    app.run_server(debug=True)
+    dash_app.run_server(debug=True)
