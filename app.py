@@ -12,7 +12,7 @@ from azure.cosmos.cosmos_client import CosmosClient
 from get_data import generate_data
 
 # get crime data
-df = generate_data(env='cloud')
+df = generate_data(env='local')
 
 last_rec = df.occur_datetime.sort_values(ascending=False).dt.strftime('%d %b %Y').iloc[0]
 

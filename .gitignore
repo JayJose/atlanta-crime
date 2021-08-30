@@ -2,5 +2,4 @@
 .venvs
 .ipynb_checkpoints/
 Untitled.ipynb
-data.csv
 __pycache__/
