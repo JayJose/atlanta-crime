@@ -12,7 +12,8 @@ from azure.cosmos.cosmos_client import CosmosClient
 from get_data import generate_data
 
 # get crime data
-df = generate_data(env='local')
+df = generate_data(env='cloud')
+df = df[df.neighborhood == 'Midtown']
 
 last_rec = df.occur_datetime.sort_values(ascending=False).dt.strftime('%d %b %Y').iloc[0]
 
@@ -37,33 +38,32 @@ dash_app.layout = dbc.Container(
                 options=[{"value": n, "label": n}
                     for n in df.neighborhood.sort_values().astype(str).unique()],
                 multi=True,
-                placeholder="Filter by neighborhood(s)")),
-            dbc.Col(dcc.Dropdown(
-                id='mapstyle-dropdown',
-                options=[{"value": m, "label": m}
-                    for m in map_styles
-                ],
-                value='carto-positron',
-                multi=False,
-                clearable=False,
-                placeholder = "Select a map style"))
+                placeholder="Filter by neighborhood(s)"), width = 3),
+            # dbc.Col(dcc.Dropdown(
+            #     id='mapstyle-dropdown',
+            #     options=[{"value": m, "label": m}
+            #         for m in map_styles
+            #     ],
+            #     value='carto-positron',
+            #     multi=False,
+            #     clearable=False,
+            #     placeholder = "Select a map style"), width = 4),
+            dbc.Col(dcc.RangeSlider(
+                id='occur-range-slider',
+                min=df['occur_day'].min(),
+                max=df['occur_day'].max(),
+                step=1,
+                value=[df['occur_day'].min(), df['occur_day'].max()],
+                marks = {
+                    1: {'label': 'Jan 1'},
+                    91: {'label': 'Apr 1'},
+                    182: {'label': 'Jul 1'},
+                    238: {'label': 'Aug 26'}
+                }), width = 4)
             ]), # end row
         dbc.Row([dbc.Col(html.Br())]),
-        dbc.Row([dbc.Col(html.P(children='Filter by date'))]),
         dbc.Row([
             dbc.Col([
-                dcc.RangeSlider(
-                    id='occur-range-slider',
-                    min=df['occur_day'].min(),
-                    max=df['occur_day'].max(),
-                    step=1,
-                    value=[df['occur_day'].min(), df['occur_day'].max()],
-                    marks = {
-                        1: {'label': 'Jan 1'},
-                        91: {'label': 'Apr 1'},
-                        182: {'label': 'Jul 1'},
-                        238: {'label': 'Aug 26'}
-                    }),
                 dbc.Card([
                     dbc.CardBody([
                         html.H4(id="crime-card"),
@@ -88,9 +88,9 @@ dash_app.layout = dbc.Container(
     Output('crime-bars', 'figure'),
     Input('nhood-dropdown', 'value'),
     Input('occur-range-slider', 'value'),
-    Input('mapstyle-dropdown', 'value'),
+    #Input('mapstyle-dropdown', 'value'),
 )
-def update_map(neighborhood, slider_values, map_style):
+def update_map(neighborhood, slider_values,): #map_style):
 
     # if no neighborhood is selected...
     if neighborhood is None or not neighborhood:
@@ -129,7 +129,7 @@ def update_map(neighborhood, slider_values, map_style):
             xanchor="right",
             x=1
         ),
-        mapbox_style=map_style,
+        mapbox_style="carto-positron",#map_style,
         uirevision=True,
     )
 
