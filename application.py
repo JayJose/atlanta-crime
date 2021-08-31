@@ -7,9 +7,9 @@ from dash.dependencies import Input, Output
 
 import plotly.express as px
 import pandas as pd
-from azure.cosmos.cosmos_client import CosmosClient
+# from azure.cosmos.cosmos_client import CosmosClient
 
-from get_data import generate_data
+from get_data import generate_combo_data, generate_data
 
 # get crime data
 df = generate_data(env='cloud')
@@ -31,7 +31,6 @@ dash_app.layout = dbc.Container(
         dbc.Row(dbc.Col(html.H2(children='2021 Atlanta Crime Map'))),
         dbc.Row([
             dbc.Col(html.A("Data current as of " + last_rec, href='https://www.atlantapd.org/i-want-to/crime-data-downloads'), width = 3),
-            dbc.Col(html.P("Filter by date crime occurred"), width = 4)
         ]),
         html.Br(),
         dbc.Row([
@@ -41,15 +40,12 @@ dash_app.layout = dbc.Container(
                     for n in df.neighborhood.sort_values().astype(str).unique()],
                 multi=True,
                 placeholder="Filter by neighborhood(s)"), width = 3),
-            # dbc.Col(dcc.Dropdown(
-            #     id='mapstyle-dropdown',
-            #     options=[{"value": m, "label": m}
-            #         for m in map_styles
-            #     ],
-            #     value='carto-positron',
-            #     multi=False,
-            #     clearable=False,
-            #     placeholder = "Select a map style"), width = 4),
+            dbc.Col(dcc.Dropdown(
+                id='crime-dropdown',
+                options=[{"value": c, "label": c}
+                    for c in df.Crime.sort_values().astype(str).unique()],
+                multi=True,
+                placeholder = "Filter by crime(s)"), width = 3),
             dbc.Col(dcc.RangeSlider(
                 id='occur-range-slider',
                 min=df['occur_day'].min(),
@@ -61,7 +57,14 @@ dash_app.layout = dbc.Container(
                     91: {'label': 'Apr 1'},
                     182: {'label': 'Jul 1'},
                     238: {'label': 'Aug 26'}
-                }), width = 4)
+                }), width = 4),
+            dbc.Col(dcc.Dropdown(
+                id='legend-dropdown',
+                options=[{"value": "Crime", "label": "Crime"}, {"value": "scaled_occur_day", "label": "Recency"}],
+                multi=False,
+                value="Crime",
+                clearable=False
+            ))
             ]), # end row
         dbc.Row([dbc.Col(html.Br())]),
         dbc.Row([
@@ -94,11 +97,12 @@ dash_app.layout = dbc.Container(
     Output('crime-card', 'children'),
     Output('crime-bars', 'figure'),
     Input('nhood-dropdown', 'value'),
+    Input('crime-dropdown', 'value'),    
     Input('occur-range-slider', 'value'),
-    #Input('mapstyle-dropdown', 'value'),
+    Input('legend-dropdown', 'value')
 )
-def update_map(neighborhood, slider_values,): #map_style):
-
+def update_map(neighborhood, crimes, slider_values, legend):#, npus): #map_style):
+    
     # if no neighborhood is selected...
     if neighborhood is None or not neighborhood:
         df_map = df
@@ -106,14 +110,29 @@ def update_map(neighborhood, slider_values,): #map_style):
     else:
         df_map = df[df.neighborhood.isin(neighborhood)]
 
-    df_map= df_map[(df_map['occur_day'] > slider_values[0]) & (df_map['occur_day'] <= slider_values[1])]
+    # if no crime is selected...
+    if crimes is None or not crimes:
+        df_map = df_map
+    # if crime is selected...
+    else:
+        df_map = df_map[df.Crime.isin(crimes)]  
+    
 
-    fig = px.scatter_mapbox(df_map, lat="lat", lon="long",
-                        color="Crime",
+    # filter based on date slider
+    df_map = df_map[(df_map['occur_day'] > slider_values[0]) & (df_map['occur_day'] <= slider_values[1])]
+
+    # set zoom
+    if neighborhood is None or not neighborhood or len(neighborhood) > 1:
+        zoom = 11
+    # if neighborhood is selected...
+    else:
+        zoom = 14
+
+    atl_map = px.scatter_mapbox(df_map, lat="lat", lon="long",
+                        color=legend,
                         color_discrete_sequence=px.colors.qualitative.T10,
-                        color_continuous_scale='thermal',
-                        #opacity=df['scaled_occur_day'].values.reshape(-1, 1),
-                        opacity=0.75,
+                        color_continuous_scale='sunsetdark',
+                        opacity=0.80,
                         hover_name="Crime",
                         hover_data={
                             'lat': False,
@@ -122,31 +141,34 @@ def update_map(neighborhood, slider_values,): #map_style):
                             'Address': True,
                             'occur_date': True,
                             'scaled_occur_day': False,
+                            'npu': True,
                             'offense_id': True,
                         },
-                        size_max=15, zoom=10,
+                        size_max=15, zoom=zoom,
                         height = 700
                         )
 
-    fig.update_layout(
+    atl_map.update_mapboxes(pitch=25)
+
+    atl_map.update_layout(
         legend=dict(
         yanchor="top",
         y=0.99,
         xanchor="left",
         x=0.01),
+        coloraxis_showscale=False,
         margin=dict(l=10, r=10, t=10, b=10),
         mapbox_style="carto-positron",#map_style,
         uirevision=True,
     )
+    # create daily trend
+    df_lines = df_map.groupby(['occur_datetime']).agg(
+        crimes=('offense_id', len))
 
-    # create bar chart by crime
-    df_bar = df_map.Crime.value_counts().to_frame().reset_index()
-    df_bar.columns = ['Crime', 'Count']
-    fig2 = px.scatter(df_bar, x="Count", y="Crime", orientation='h', height=300)
+    fig_lines = px.line(df_lines, x=df_lines.index, y="crimes")
+    fig_lines.update_layout(margin=dict(l=10, r=10, t=10, b=10))
 
-    crimes = len(df_map)
-
-    return fig, f"{crimes:,}", fig2
+    return atl_map, f"{len(df_map):,}", fig_lines # map, number of crimes, # line chart
 
 if __name__ == '__main__':
     dash_app.run_server(debug=True)
