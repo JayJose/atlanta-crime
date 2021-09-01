@@ -88,9 +88,8 @@ dash_app.layout = dbc.Container(
 ) # close layout
 
 # build map
-# token = "pk.eyJ1IjoiamF5am9zZSIsImEiOiJja3AxZjFsZ2QxYXR4Mm9xamRlNGExcHZ3In0.FvpQMwY1cqyylbMiWxGhRQ"
+#token = open("sicrits/.mapbox_token").read() # you need your own token
 # px.set_mapbox_access_token(token)
-
 
 @dash_app.callback(
     Output('atl-map', 'figure'),
@@ -162,8 +161,13 @@ def update_map(neighborhood, crimes, slider_values, legend):#, npus): #map_style
         uirevision=True,
     )
     # create daily trend
-    df_lines = df_map.groupby(['occur_datetime']).agg(
-        crimes=('offense_id', len))
+    #df_lines = df_map.groupby(['occur_datetime']).agg(
+    #    crimes=('offense_id', len))
+
+    df_map.sort_values(by=['occur_datetime'], inplace=True, ascending=True)
+    df_lines = df_map.groupby(['occur_datetime']).agg(crimes=('offense_id', len))
+    
+    df_lines = df_lines.rolling(window = 7).mean()
 
     fig_lines = px.line(df_lines, x=df_lines.index, y="crimes")
     fig_lines.update_layout(margin=dict(l=10, r=10, t=10, b=10))
