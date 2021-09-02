@@ -172,7 +172,17 @@ def update_map(neighborhood, crimes, slider_values, legend):#, npus): #map_style
     fig_lines = px.line(df_lines, x=df_lines.index, y="crimes")
     fig_lines.update_layout(margin=dict(l=10, r=10, t=10, b=10))
 
-    return atl_map, f"{len(df_map):,}", fig_lines # map, number of crimes, # line chart
+    # heat map by day of week and time of day
+    #df_heat = df.groupby(['occur_day', 'occur_period']).agg(crimes=('offense_id', len)).reset_index()
+    df_heat = df_map.groupby(['occur_period']).agg(crimes=('offense_id', len)).reset_index()
+
+    heatmap = px.bar(df_heat,
+                x = 'occur_period', y = 'crimes'
+               )
+    
+    heatmap.update_xaxes(side="top")
+
+    return atl_map, f"{len(df_map):,}", heatmap#fig_lines # map, number of crimes, # line chart
 
 if __name__ == '__main__':
     dash_app.run_server(debug=True)
