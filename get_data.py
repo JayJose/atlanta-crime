@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 
 #### function to generate local datasets
@@ -94,5 +95,15 @@ def generate_data(env = 'local'):
     # scale day of occurence (first day = 1, last day = 100)
     min_max_scaler = MinMaxScaler()
     df['scaled_occur_day'] = min_max_scaler.fit_transform(df['occur_day'].values.reshape(-1, 1))
+
+
+    # get period of day (morning, afternoon, evening, night) 
+    df['occur_hour'] = pd.to_datetime(df['occur_date'] + ' ' + df['occur_time']).dt.hour
+    df['occur_period'] = np.where(
+     df['occur_hour'].between(0, 4, inclusive=True), 'Night',    
+     np.where(df['occur_hour'].between(5, 12, inclusive=True), 'Morning',
+     np.where(df['occur_hour'].between(12, 17, inclusive=True), 'Afternoon',
+     np.where(df['occur_hour'].between(17, 21, inclusive=True), 'Evening',
+     np.where(df['occur_hour'].between(21,24, inclusive=True), 'Night', 'Unknown')))))
 
     return df
