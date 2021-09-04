@@ -16,7 +16,7 @@ from generate_charts import generate_bar_chart, generate_column_chart, generate_
 # get crime data
 df = generate_data(env='local')
 
-last_rec = df.occur_datetime.sort_values(ascending=False).dt.strftime('%d %b %Y').iloc[0]
+last_rec = df.occur_datetime.sort_values(ascending=False).dt.strftime('%b %d %Y').iloc[0]
 
 # styling
 map_styles = ['open-street-map', 'carto-positron', 'carto-darkmatter', 'stamen-terrain', 'stamen-toner']
@@ -65,11 +65,16 @@ dash_app.layout = dbc.Container(
         dbc.Row([
             dbc.Col([
                 html.H5(id="crime-card"),
-                html.P(id='crime-range-label', className="card-text"),
+                html.P(
+                    id='crime-range-label',
+                    style={'font-size':14}
+                ),
                 html.H5("X% increase", id="crime-change"),
-                html.P("2021 vs. 2020", className="card-text"),
-            html.Br(),                  
-            html.P('Crime Trend'),
+                html.P(
+                    "2021 vs. 2020",
+                    style={'font-size':14}
+                ),
+            html.P('Crime Trend, 7-day Moving Average'),
             dcc.Graph(id='crime-trend'),
             html.Br(),                    
             html.P("Crimes by Crime Type"),
@@ -123,7 +128,8 @@ def update_map(neighborhood, crimes, slider_values, map_style):
     fig_dot = generate_dot_plot(df_map)
 
     # create date range label - "from X to Y"
-    date_range = "From " + df_map.occur_datetime.sort_values(ascending=True).dt.strftime('%m/%d/%Y').iloc[0] + " to " + df_map.occur_datetime.sort_values(ascending=False).dt.strftime('%m/%d/%Y').iloc[0]
+    date_format = '%b %d %Y'
+    date_range = "From " + df_map.occur_datetime.sort_values(ascending=True).dt.strftime(date_format).iloc[0] + " to " + df_map.occur_datetime.sort_values(ascending=False).dt.strftime(date_format).iloc[0]
     
     return fig_map, f"{len(df_map):,} Crimes", fig_dot, fig_trend, date_range
 
