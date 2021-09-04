@@ -10,8 +10,8 @@ import plotly.express as px
 import pandas as pd
 # from azure.cosmos.cosmos_client import CosmosClient
 
-from get_data import generate_combo_data, generate_data, generate_map_data
-from generate_charts import generate_bar_chart, generate_map, generate_trend_chart
+from get_data import *
+from generate_charts import generate_bar_chart, generate_column_chart, generate_dot_plot, generate_map, generate_trend_chart
 
 # get crime data
 df = generate_data(env='cloud')
@@ -74,7 +74,8 @@ dash_app.layout = dbc.Container(
                     dbc.CardBody([
                         html.H4("X% increase", id="crime-change"),
                         html.P("2021 vs. 2020", className="card-text")]),
-                    ]),                    
+                    ]),
+            #dcc.Graph(id='crime-trend'),                    
             dcc.Graph(id='crime-bars')
             ], width = 3),
         dbc.Col(dcc.Graph(id="atl-map"), width = 9)
@@ -101,6 +102,7 @@ dash_app.layout = dbc.Container(
     Output('atl-map', 'figure'),
     Output('crime-card', 'children'),
     Output('crime-bars', 'figure'),
+    #Output('crime-trend', 'figure'),
     Output('crime-range-label', 'children'),
     Input('nhood-dropdown', 'value'),
     Input('crime-dropdown', 'value'),    
@@ -119,12 +121,14 @@ def update_map(neighborhood, crimes, slider_values, map_style):
     # create charts
     fig_map = generate_map(df_map, zoom, map_style)
     fig_trend = generate_trend_chart(df_map)
+    fig_column = generate_column_chart(df_map)
     fig_bar = generate_bar_chart(df_map)
+    fig_dot = generate_dot_plot(df_map)
 
     # create date range label - "from X to Y"
     date_range = "From " + df_map.occur_datetime.sort_values(ascending=True).dt.strftime('%m/%d/%Y').iloc[0] + " to " + df_map.occur_datetime.sort_values(ascending=False).dt.strftime('%m/%d/%Y').iloc[0]
     
-    return fig_map, f"{len(df_map):,} Crimes", fig_bar, date_range
+    return fig_map, f"{len(df_map):,} Crimes", fig_dot, date_range
 
 if __name__ == '__main__':
     dash_app.run_server(debug=True)

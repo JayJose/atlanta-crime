@@ -6,23 +6,48 @@ def generate_bar_chart(df):
     #### create bar chart by time of day ####
 
     # aggregate data by period
-    df_bar = df.groupby(['occur_period']).agg(crimes=('offense_id', len)).reset_index()
+    df_bar = df.groupby(['Crime']).agg(crimes=('offense_id', len)).reset_index()
     
     # create bar chart
-    fig_bar = px.bar(df_bar, x = 'occur_period', y = 'crimes', text = 'crimes',
+    fig_bar = px.bar(df_bar.sort_values(by='crimes'), x = 'crimes', y = 'Crime', text = 'crimes',
+        orientation='h',
+        template='simple_white',
+    )
+    
+    # remove y-axis, remove x-axis title from bar chart
+    fig_bar.update_layout(
+        margin=dict(l=10, r=10, t=50, b=10),
+        yaxis_title=None,
+        yaxis=dict(tickangle=0, tickfont=dict(size=10)),
+        xaxis=dict(visible=False), title = "Crimes by Crime Type"),
+
+    # format bar chart text labels
+    #fig_bar.update_traces(textposition='')
+    
+    return fig_bar
+
+def generate_column_chart(df):
+
+    #### create bar chart by time of day ####
+
+    # aggregate data by period
+    df_col = df.groupby(['occur_period']).agg(crimes=('offense_id', len)).reset_index()
+    
+    # create bar chart
+    fig_col = px.bar(df_col, x = 'occur_period', y = 'crimes', text = 'crimes',
         template='simple_white',
         #color_discrete_sequence=["#A9A9A9"],
         category_orders={"occur_period": ["Morning", "Afternoon", "Evening", "Night"]})
     
     # remove y-axis, remove x-axis title from bar chart
-    fig_bar.update_layout(
+    fig_col.update_layout(
         margin=dict(l=10, r=10, t=50, b=10),
         xaxis_title=None, yaxis=dict(visible=False), title = "Crimes by Time of Day")
 
     # format bar chart text labels
-    fig_bar.update_traces(textposition='outside')
+    fig_col.update_traces(textposition='outside')
     
-    return fig_bar
+    return fig_col
 
 def generate_map(df, zoom, map_style):
     
@@ -68,7 +93,30 @@ def generate_map(df, zoom, map_style):
 
     return fig_map
 
+def generate_dot_plot(df):
 
+    #### create dot plot by crime ####
+
+    # aggregate data by period
+    df_bar = df.groupby(['Crime']).agg(crimes=('offense_id', len)).reset_index()
+    
+    # create dot plot
+    fig_dot = px.scatter(
+        df_bar.sort_values(by='crimes'), x = 'crimes', y = 'Crime',
+        template='simple_white',
+    )
+    
+    # remove x-axis, remove y-axis title from dot plot
+    fig_dot.update_layout(
+        margin=dict(l=10, r=10, t=50, b=10),
+        yaxis_title=None,
+        yaxis=dict(tickangle=0, tickfont=dict(size=10)),
+        xaxis=dict(visible=False), title = "Crimes by Crime Type"),
+
+    # format bar chart text labels
+    #fig_bar.update_traces(textposition='')
+    
+    return fig_dot
 
 def generate_trend_chart(df):
 
@@ -91,3 +139,4 @@ def generate_trend_chart(df):
     fig_lines.update_layout(margin=dict(l=10, r=10, t=10, b=10))
 
     return fig_lines
+
