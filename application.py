@@ -14,7 +14,7 @@ from get_data import generate_combo_data, generate_data, generate_map_data
 from generate_charts import generate_bar_chart, generate_map, generate_trend_chart
 
 # get crime data
-df = generate_data(env='local')
+df = generate_data(env='cloud')
 
 last_rec = df.occur_datetime.sort_values(ascending=False).dt.strftime('%d %b %Y').iloc[0]
 
@@ -58,7 +58,7 @@ dash_app.layout = dbc.Container(
                     1: {'label': 'Jan 1'},
                     91: {'label': 'Apr 1'},
                     182: {'label': 'Jul 1'},
-                    238: {'label': 'Aug 26'}
+                    244: {'label': 'Sep 1'}
                 }), width = 4),
             ]), # end row
         dbc.Row([dbc.Col(html.Br())]),
@@ -69,15 +69,17 @@ dash_app.layout = dbc.Container(
                         html.H4(id="crime-card"),
                         html.P(id='crime-range-label', className="card-text")]),
                     ]),
+                html.Br(),
                 dbc.Card([
                     dbc.CardBody([
-                        html.H4("56% increase", id="crime-change"),
+                        html.H4("X% increase", id="crime-change"),
                         html.P("2021 vs. 2020", className="card-text")]),
                     ]),                    
             dcc.Graph(id='crime-bars')
             ], width = 3),
         dbc.Col(dcc.Graph(id="atl-map"), width = 9)
         ]),
+        # row 6 - beneath the map
         dbc.Row([
             dbc.Col(dcc.Dropdown(
                 id='layer-dropdown',
@@ -110,11 +112,9 @@ def update_map(neighborhood, crimes, slider_values, map_style):
     df_map = generate_map_data(df, neighborhood, crimes, slider_values)
 
     # set zoom
+    zoom = 14
     if neighborhood is None or not neighborhood or len(neighborhood) > 1:
         zoom = 11
-    # if neighborhood is selected...
-    else:
-        zoom = 14
 
     # create charts
     fig_map = generate_map(df_map, zoom, map_style)
