@@ -11,6 +11,7 @@ import pandas as pd
 # from azure.cosmos.cosmos_client import CosmosClient
 
 from get_data import generate_combo_data, generate_data
+from generate_charts import generate_bar_chart
 
 # get crime data
 df = generate_data(env='local')
@@ -173,18 +174,8 @@ def update_map(neighborhood, crimes, slider_values, map_style):#, npus): #map_st
     fig_lines = px.line(df_lines, x=df_lines.index, y="crimes")
     fig_lines.update_layout(margin=dict(l=10, r=10, t=10, b=10))
 
-    # create bar chart by time of day
-    df_bar = df_map.groupby(['occur_period']).agg(crimes=('offense_id', len)).reset_index()
-    fig_bar = px.bar(df_bar, x = 'occur_period', y = 'crimes', text = 'crimes',
-        template='simple_white',
-        #color_discrete_sequence=["#A9A9A9"],
-        category_orders={"occur_period": ["Morning", "Afternoon", "Evening", "Night"]})
-    
-    fig_bar.update_layout(
-        margin=dict(l=10, r=10, t=50, b=10),
-        xaxis_title=None, yaxis=dict(visible=False), title = "Crimes by Time of Day")
-
-    fig_bar.update_traces(textposition='outside')
+    # generate bar chart
+    fig_bar = generate_bar_chart(df_map)
 
     # create date range label - "from X to Y"
     date_range = "From " + df_map.occur_datetime.sort_values(ascending=True).dt.strftime('%m/%d/%Y').iloc[0] + " to " + df_map.occur_datetime.sort_values(ascending=False).dt.strftime('%m/%d/%Y').iloc[0]
