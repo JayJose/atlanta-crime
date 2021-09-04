@@ -11,7 +11,7 @@ import pandas as pd
 # from azure.cosmos.cosmos_client import CosmosClient
 
 from get_data import generate_combo_data, generate_data
-from generate_charts import generate_bar_chart
+from generate_charts import generate_bar_chart, generate_map, generate_trend_chart
 
 # get crime data
 df = generate_data(env='local')
@@ -85,7 +85,7 @@ dash_app.layout = dbc.Container(
                     for m in map_styles],
                 multi=False,
                 clearable=False,
-                value="carto-darkmatter"), width={"size": 4, "offset": 3},)
+                value="carto-darkmatter"), width={"size": 3, "offset": 3},)
         ])
     ], # close children
     fluid = True,
@@ -105,7 +105,7 @@ dash_app.layout = dbc.Container(
     Input('occur-range-slider', 'value'),
     Input('layer-dropdown', 'value'),
 )
-def update_map(neighborhood, crimes, slider_values, map_style):#, npus): #map_style):
+def update_map(neighborhood, crimes, slider_values, map_style):
     
     # if no neighborhood is selected...
     if neighborhood is None or not neighborhood:
@@ -120,7 +120,6 @@ def update_map(neighborhood, crimes, slider_values, map_style):#, npus): #map_st
     # if crime is selected...
     else:
         df_map = df_map[df.Crime.isin(crimes)]  
-    
 
     # filter based on date slider
     df_map = df_map[(df_map['occur_day'] > slider_values[0]) & (df_map['occur_day'] <= slider_values[1])]
@@ -132,47 +131,11 @@ def update_map(neighborhood, crimes, slider_values, map_style):#, npus): #map_st
     else:
         zoom = 14
 
-    atl_map = px.scatter_mapbox(df_map, lat="lat", lon="long",
-                        color="scaled_occur_day",
-                        color_discrete_sequence=px.colors.qualitative.T10,
-                        color_continuous_scale='peach',
-                        opacity=0.80,
-                        hover_name="Crime",
-                        hover_data={
-                            'lat': False,
-                            'long': False,
-                            'neighborhood': True,
-                            'Address': True,
-                            'occur_date': True,
-                            'scaled_occur_day': False,
-                            'npu': True,
-                            'offense_id': True,
-                        },
-                        size_max=15, zoom=zoom,
-                        height = 700
-                        )
+    # create map
+    fig_map = generate_map(df_map, zoom, map_style)
 
-    atl_map.update_mapboxes(pitch=25)
-
-    atl_map.update_layout(
-        legend=dict(
-        yanchor="top",
-        y=0.99,
-        xanchor="left",
-        x=0.01),
-        coloraxis_showscale=False,
-        margin=dict(l=10, r=10, t=10, b=10),
-        mapbox_style=map_style,
-        uirevision=True,
-    )
-    # create daily trend
-    df_map.sort_values(by=['occur_datetime'], inplace=True, ascending=True)
-    df_lines = df_map.groupby(['occur_datetime']).agg(crimes=('offense_id', len))
-    
-    df_lines = df_lines.rolling(window = 7).mean()
-
-    fig_lines = px.line(df_lines, x=df_lines.index, y="crimes")
-    fig_lines.update_layout(margin=dict(l=10, r=10, t=10, b=10))
+    # create trend chart
+    fig_trend = generate_trend_chart(df_map)
 
     # generate bar chart
     fig_bar = generate_bar_chart(df_map)
@@ -180,7 +143,7 @@ def update_map(neighborhood, crimes, slider_values, map_style):#, npus): #map_st
     # create date range label - "from X to Y"
     date_range = "From " + df_map.occur_datetime.sort_values(ascending=True).dt.strftime('%m/%d/%Y').iloc[0] + " to " + df_map.occur_datetime.sort_values(ascending=False).dt.strftime('%m/%d/%Y').iloc[0]
     
-    return atl_map, f"{len(df_map):,} Crimes", fig_bar, date_range
+    return fig_map, f"{len(df_map):,} Crimes", fig_bar, date_range
 
 if __name__ == '__main__':
     dash_app.run_server(debug=True)

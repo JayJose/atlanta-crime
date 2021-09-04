@@ -72,7 +72,7 @@
         </mxGraphModel>
     </diagram>
     <diagram id="yowrlgaX1Kdxxqxivsnb" name="layout">
-        <mxGraphModel dx="665" dy="474" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="391" dy="474" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="uwYrSNLBMI2gb99kesB4-0"/>
                 <mxCell id="uwYrSNLBMI2gb99kesB4-1" parent="uwYrSNLBMI2gb99kesB4-0"/>
@@ -91,7 +91,7 @@
                 <mxCell id="uwYrSNLBMI2gb99kesB4-6" value="Trend" style="rounded=1;whiteSpace=wrap;html=1;" parent="uwYrSNLBMI2gb99kesB4-1" vertex="1">
                     <mxGeometry x="240" y="210" width="60" height="30" as="geometry"/>
                 </mxCell>
-                <mxCell id="hZrnMsAzkJg7uWu7PhoQ-0" value="Time of day" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="uwYrSNLBMI2gb99kesB4-1">
+                <mxCell id="hZrnMsAzkJg7uWu7PhoQ-0" value="Time of day" style="rounded=1;whiteSpace=wrap;html=1;" parent="uwYrSNLBMI2gb99kesB4-1" vertex="1">
                     <mxGeometry x="170" y="210" width="60" height="30" as="geometry"/>
                 </mxCell>
             </root>

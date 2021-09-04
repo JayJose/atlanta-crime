@@ -11,3 +11,4 @@
 
 #### Limitations
 * Dataset does not include all crime types reported in the APD's weekly reports (ex: Rapes).
+* Dataset does not include crimes reported to the Georgia Tech Police Department. GT crime data can be accessed [here](https://police.gatech.edu/crime-logs-and-map).

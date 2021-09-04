@@ -63,7 +63,7 @@ def generate_combo_data(env = 'local'):
 def generate_data(env = 'local'):
 
     if env == 'local':
-        df = pd.read_csv('data.csv')
+        df = pd.read_csv('data/data.csv')
 
     elif env == 'cloud':
         url = "https://sacrimeapp.blob.core.windows.net/crime-data/certified/COBRA-2021.csv"
@@ -100,7 +100,7 @@ def generate_data(env = 'local'):
     # get period of day (morning, afternoon, evening, night) 
     df['occur_hour'] = pd.to_datetime(df['occur_date'] + ' ' + df['occur_time']).dt.hour
     df['occur_period'] = np.where(
-     df['occur_hour'].between(0, 4, inclusive=True), 'Night',    
+     df['occur_hour'].between(0, 4, inclusive="both"), 'Night',    
      np.where(df['occur_hour'].between(5, 12, inclusive="both"), 'Morning',
      np.where(df['occur_hour'].between(12, 17, inclusive="both"), 'Afternoon',
      np.where(df['occur_hour'].between(17, 21, inclusive="both"), 'Evening',
