@@ -107,3 +107,24 @@ def generate_data(env = 'local'):
      np.where(df['occur_hour'].between(21,24, inclusive="both"), 'Night', 'Unknown')))))
 
     return df
+
+def generate_map_data(df, neighborhood, crimes, slider_values):
+
+    # if no neighborhood is selected...
+    if neighborhood is None or not neighborhood:
+        df_map = df
+    # if neighborhood is selected...
+    else:
+        df_map = df[df.neighborhood.isin(neighborhood)]
+
+    # if no crime is selected...
+    if crimes is None or not crimes:
+        df_map = df_map
+    # if crime is selected...
+    else:
+        df_map = df_map[df.Crime.isin(crimes)]  
+
+    # filter based on date slider
+    df_map = df_map[(df_map['occur_day'] >= slider_values[0]) & (df_map['occur_day'] <= slider_values[1])]
+    
+    return df_map

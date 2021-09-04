@@ -10,7 +10,7 @@ import plotly.express as px
 import pandas as pd
 # from azure.cosmos.cosmos_client import CosmosClient
 
-from get_data import generate_combo_data, generate_data
+from get_data import generate_combo_data, generate_data, generate_map_data
 from generate_charts import generate_bar_chart, generate_map, generate_trend_chart
 
 # get crime data
@@ -107,22 +107,7 @@ dash_app.layout = dbc.Container(
 )
 def update_map(neighborhood, crimes, slider_values, map_style):
     
-    # if no neighborhood is selected...
-    if neighborhood is None or not neighborhood:
-        df_map = df
-    # if neighborhood is selected...
-    else:
-        df_map = df[df.neighborhood.isin(neighborhood)]
-
-    # if no crime is selected...
-    if crimes is None or not crimes:
-        df_map = df_map
-    # if crime is selected...
-    else:
-        df_map = df_map[df.Crime.isin(crimes)]  
-
-    # filter based on date slider
-    df_map = df_map[(df_map['occur_day'] > slider_values[0]) & (df_map['occur_day'] <= slider_values[1])]
+    df_map = generate_map_data(df, neighborhood, crimes, slider_values)
 
     # set zoom
     if neighborhood is None or not neighborhood or len(neighborhood) > 1:
@@ -131,13 +116,9 @@ def update_map(neighborhood, crimes, slider_values, map_style):
     else:
         zoom = 14
 
-    # create map
+    # create charts
     fig_map = generate_map(df_map, zoom, map_style)
-
-    # create trend chart
     fig_trend = generate_trend_chart(df_map)
-
-    # generate bar chart
     fig_bar = generate_bar_chart(df_map)
 
     # create date range label - "from X to Y"
