@@ -58,13 +58,6 @@ dash_app.layout = dbc.Container(
                     182: {'label': 'Jul 1'},
                     238: {'label': 'Aug 26'}
                 }), width = 4),
-            dbc.Col(dcc.Dropdown(
-                id='legend-dropdown',
-                options=[{"value": "Crime", "label": "Crime"}, {"value": "scaled_occur_day", "label": "Recency"}],
-                multi=False,
-                value="Crime",
-                clearable=False
-            ))
             ]), # end row
         dbc.Row([dbc.Col(html.Br())]),
         dbc.Row([
@@ -98,9 +91,8 @@ dash_app.layout = dbc.Container(
     Input('nhood-dropdown', 'value'),
     Input('crime-dropdown', 'value'),    
     Input('occur-range-slider', 'value'),
-    Input('legend-dropdown', 'value')
 )
-def update_map(neighborhood, crimes, slider_values, legend):#, npus): #map_style):
+def update_map(neighborhood, crimes, slider_values):#, npus): #map_style):
     
     # if no neighborhood is selected...
     if neighborhood is None or not neighborhood:
@@ -128,9 +120,9 @@ def update_map(neighborhood, crimes, slider_values, legend):#, npus): #map_style
         zoom = 14
 
     atl_map = px.scatter_mapbox(df_map, lat="lat", lon="long",
-                        color=legend,
+                        color="scaled_occur_day",
                         color_discrete_sequence=px.colors.qualitative.T10,
-                        color_continuous_scale='sunsetdark',
+                        color_continuous_scale='peach',
                         opacity=0.80,
                         hover_name="Crime",
                         hover_data={
@@ -174,13 +166,16 @@ def update_map(neighborhood, crimes, slider_values, legend):#, npus): #map_style
 
     # heat map by day of week and time of day
     #df_heat = df.groupby(['occur_day', 'occur_period']).agg(crimes=('offense_id', len)).reset_index()
-    df_heat = df_map.groupby(['occur_period']).agg(crimes=('offense_id', len)).reset_index()
 
-    heatmap = px.bar(df_heat,
-                x = 'occur_period', y = 'crimes'
-               )
+    df_heat = df_map.groupby(['occur_period']).agg(crimes=('offense_id', len)).reset_index()
+    heatmap = px.bar(df_heat, x = 'occur_period', y = 'crimes', text = 'crimes',
+        category_orders={"occur_period": ["Morning", "Afternoon", "Evening", "Night"]})
     
-    heatmap.update_xaxes(side="top")
+    heatmap.update_layout(
+        margin=dict(l=10, r=10, t=50, b=10),
+        xaxis_title=None, yaxis=dict(visible=False), title = "Crimes by Time of Day")
+
+    heatmap.update_traces(textposition='outside')
 
     return atl_map, f"{len(df_map):,}", heatmap#fig_lines # map, number of crimes, # line chart
 
