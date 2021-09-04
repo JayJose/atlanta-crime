@@ -1,4 +1,5 @@
 from logging import raiseExceptions
+from os import WIFEXITED
 import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
@@ -75,6 +76,15 @@ dash_app.layout = dbc.Container(
             dcc.Graph(id='crime-bars')
             ], width = 3),
         dbc.Col(dcc.Graph(id="atl-map"), width = 9)
+        ]),
+        dbc.Row([
+            dbc.Col(dcc.Dropdown(
+                id='layer-dropdown',
+                options=[{"value": m, "label": m}
+                    for m in map_styles],
+                multi=False,
+                clearable=False,
+                value="carto-darkmatter"), width={"size": 4, "offset": 3},)
         ])
     ], # close children
     fluid = True,
@@ -92,8 +102,9 @@ dash_app.layout = dbc.Container(
     Input('nhood-dropdown', 'value'),
     Input('crime-dropdown', 'value'),    
     Input('occur-range-slider', 'value'),
+    Input('layer-dropdown', 'value'),
 )
-def update_map(neighborhood, crimes, slider_values):#, npus): #map_style):
+def update_map(neighborhood, crimes, slider_values, map_style):#, npus): #map_style):
     
     # if no neighborhood is selected...
     if neighborhood is None or not neighborhood:
@@ -150,7 +161,7 @@ def update_map(neighborhood, crimes, slider_values):#, npus): #map_style):
         x=0.01),
         coloraxis_showscale=False,
         margin=dict(l=10, r=10, t=10, b=10),
-        mapbox_style="carto-positron",#map_style,
+        mapbox_style=map_style,
         uirevision=True,
     )
     # create daily trend
@@ -173,9 +184,10 @@ def update_map(neighborhood, crimes, slider_values):#, npus): #map_style):
 
     fig_bar.update_traces(textposition='outside')
 
+    # create date range label - "from X to Y"
     date_range = "From " + df_map.occur_datetime.sort_values(ascending=True).dt.strftime('%m/%d/%Y').iloc[0] + " to " + df_map.occur_datetime.sort_values(ascending=False).dt.strftime('%m/%d/%Y').iloc[0]
     
-    return atl_map, f"{len(df_map):,} Crimes", fig_bar, date_range #fig_lines # map, number of crimes, # line chart
+    return atl_map, f"{len(df_map):,} Crimes", fig_bar, date_range
 
 if __name__ == '__main__':
     dash_app.run_server(debug=True)
