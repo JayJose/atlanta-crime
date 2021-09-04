@@ -14,7 +14,7 @@ from get_data import *
 from generate_charts import generate_bar_chart, generate_column_chart, generate_dot_plot, generate_map, generate_trend_chart
 
 # get crime data
-df = generate_data(env='cloud')
+df = generate_data(env='local')
 
 last_rec = df.occur_datetime.sort_values(ascending=False).dt.strftime('%d %b %Y').iloc[0]
 
@@ -64,19 +64,16 @@ dash_app.layout = dbc.Container(
         dbc.Row([dbc.Col(html.Br())]),
         dbc.Row([
             dbc.Col([
-                dbc.Card([
-                    dbc.CardBody([
-                        html.H4(id="crime-card"),
-                        html.P(id='crime-range-label', className="card-text")]),
-                    ]),
-                html.Br(),
-                dbc.Card([
-                    dbc.CardBody([
-                        html.H4("X% increase", id="crime-change"),
-                        html.P("2021 vs. 2020", className="card-text")]),
-                    ]),
-            #dcc.Graph(id='crime-trend'),                    
-            dcc.Graph(id='crime-bars')
+                html.H5(id="crime-card"),
+                html.P(id='crime-range-label', className="card-text"),
+                html.H5("X% increase", id="crime-change"),
+                html.P("2021 vs. 2020", className="card-text"),
+            html.Br(),                  
+            html.P('Crime Trend'),
+            dcc.Graph(id='crime-trend'),
+            html.Br(),                    
+            html.P("Crimes by Crime Type"),
+            dcc.Graph(id='crime-dots'),
             ], width = 3),
         dbc.Col(dcc.Graph(id="atl-map"), width = 9)
         ]),
@@ -101,8 +98,8 @@ dash_app.layout = dbc.Container(
 @dash_app.callback(
     Output('atl-map', 'figure'),
     Output('crime-card', 'children'),
-    Output('crime-bars', 'figure'),
-    #Output('crime-trend', 'figure'),
+    Output('crime-dots', 'figure'),
+    Output('crime-trend', 'figure'),
     Output('crime-range-label', 'children'),
     Input('nhood-dropdown', 'value'),
     Input('crime-dropdown', 'value'),    
@@ -116,7 +113,7 @@ def update_map(neighborhood, crimes, slider_values, map_style):
     # set zoom
     zoom = 14
     if neighborhood is None or not neighborhood or len(neighborhood) > 1:
-        zoom = 11
+        zoom = 10.5
 
     # create charts
     fig_map = generate_map(df_map, zoom, map_style)
@@ -128,7 +125,7 @@ def update_map(neighborhood, crimes, slider_values, map_style):
     # create date range label - "from X to Y"
     date_range = "From " + df_map.occur_datetime.sort_values(ascending=True).dt.strftime('%m/%d/%Y').iloc[0] + " to " + df_map.occur_datetime.sort_values(ascending=False).dt.strftime('%m/%d/%Y').iloc[0]
     
-    return fig_map, f"{len(df_map):,} Crimes", fig_dot, date_range
+    return fig_map, f"{len(df_map):,} Crimes", fig_dot, fig_trend, date_range
 
 if __name__ == '__main__':
     dash_app.run_server(debug=True)

@@ -58,7 +58,7 @@ def generate_map(df, zoom, map_style):
         df, lat="lat", lon="long",
         color="scaled_occur_day",
         color_discrete_sequence=px.colors.qualitative.T10,
-        color_continuous_scale='peach',
+        color_continuous_scale='hot',
         opacity=0.80,
         hover_name="Crime",
         hover_data={
@@ -104,17 +104,15 @@ def generate_dot_plot(df):
     fig_dot = px.scatter(
         df_bar.sort_values(by='crimes'), x = 'crimes', y = 'Crime',
         template='simple_white',
+        height = 200
     )
     
     # remove x-axis, remove y-axis title from dot plot
     fig_dot.update_layout(
-        margin=dict(l=10, r=10, t=50, b=10),
-        yaxis_title=None,
-        yaxis=dict(tickangle=0, tickfont=dict(size=10)),
-        xaxis=dict(visible=False), title = "Crimes by Crime Type"),
-
-    # format bar chart text labels
-    #fig_bar.update_traces(textposition='')
+        margin=dict(l=10, r=10, t=10, b=10),
+        yaxis=dict(title=None, tickangle=0, tickfont=dict(size=10)),
+        xaxis=dict(visible=True, title=None)
+    )
     
     return fig_dot
 
@@ -133,10 +131,19 @@ def generate_trend_chart(df):
     df_lines = df_lines.rolling(window = 7).mean()
 
     # create trend chart
-    fig_lines = px.line(df_lines, x=df_lines.index, y="crimes")
+    fig_lines = px.line(
+        df_lines,
+        x=df_lines.index, y="crimes",
+        template='simple_white',
+        height=200
+    )
     
     # set chart margins
-    fig_lines.update_layout(margin=dict(l=10, r=10, t=10, b=10))
+    fig_lines.update_layout(
+        margin=dict(l=10, r=10, t=10, b=10),
+        xaxis=dict(visible=True, title=None, tickangle=-45), #tickfont=dict(size=10)),
+        yaxis=dict(visible=True, title=None)
+    )
 
     return fig_lines
 
