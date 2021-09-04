@@ -65,7 +65,7 @@ dash_app.layout = dbc.Container(
                 dbc.Card([
                     dbc.CardBody([
                         html.H4(id="crime-card"),
-                        html.P("Crimes in 2021", className="card-text")]),
+                        html.P(id='crime-range-label', className="card-text")]),
                     ]),
                 dbc.Card([
                     dbc.CardBody([
@@ -88,6 +88,7 @@ dash_app.layout = dbc.Container(
     Output('atl-map', 'figure'),
     Output('crime-card', 'children'),
     Output('crime-bars', 'figure'),
+    Output('crime-range-label', 'children'),
     Input('nhood-dropdown', 'value'),
     Input('crime-dropdown', 'value'),    
     Input('occur-range-slider', 'value'),
@@ -153,9 +154,6 @@ def update_map(neighborhood, crimes, slider_values):#, npus): #map_style):
         uirevision=True,
     )
     # create daily trend
-    #df_lines = df_map.groupby(['occur_datetime']).agg(
-    #    crimes=('offense_id', len))
-
     df_map.sort_values(by=['occur_datetime'], inplace=True, ascending=True)
     df_lines = df_map.groupby(['occur_datetime']).agg(crimes=('offense_id', len))
     
@@ -164,20 +162,20 @@ def update_map(neighborhood, crimes, slider_values):#, npus): #map_style):
     fig_lines = px.line(df_lines, x=df_lines.index, y="crimes")
     fig_lines.update_layout(margin=dict(l=10, r=10, t=10, b=10))
 
-    # heat map by day of week and time of day
-    #df_heat = df.groupby(['occur_day', 'occur_period']).agg(crimes=('offense_id', len)).reset_index()
-
-    df_heat = df_map.groupby(['occur_period']).agg(crimes=('offense_id', len)).reset_index()
-    heatmap = px.bar(df_heat, x = 'occur_period', y = 'crimes', text = 'crimes',
+    # create bar chart by time of day
+    df_bar = df_map.groupby(['occur_period']).agg(crimes=('offense_id', len)).reset_index()
+    fig_bar = px.bar(df_bar, x = 'occur_period', y = 'crimes', text = 'crimes',
         category_orders={"occur_period": ["Morning", "Afternoon", "Evening", "Night"]})
     
-    heatmap.update_layout(
+    fig_bar.update_layout(
         margin=dict(l=10, r=10, t=50, b=10),
         xaxis_title=None, yaxis=dict(visible=False), title = "Crimes by Time of Day")
 
-    heatmap.update_traces(textposition='outside')
+    fig_bar.update_traces(textposition='outside')
 
-    return atl_map, f"{len(df_map):,}", heatmap#fig_lines # map, number of crimes, # line chart
+    date_range = "From " + df_map.occur_datetime.sort_values(ascending=True).dt.strftime('%m/%d/%Y').iloc[0] + " to " + df_map.occur_datetime.sort_values(ascending=False).dt.strftime('%m/%d/%Y').iloc[0]
+    
+    return atl_map, f"{len(df_map):,} Crimes", fig_bar, date_range #fig_lines # map, number of crimes, # line chart
 
 if __name__ == '__main__':
     dash_app.run_server(debug=True)

@@ -101,9 +101,9 @@ def generate_data(env = 'local'):
     df['occur_hour'] = pd.to_datetime(df['occur_date'] + ' ' + df['occur_time']).dt.hour
     df['occur_period'] = np.where(
      df['occur_hour'].between(0, 4, inclusive=True), 'Night',    
-     np.where(df['occur_hour'].between(5, 12, inclusive=True), 'Morning',
-     np.where(df['occur_hour'].between(12, 17, inclusive=True), 'Afternoon',
-     np.where(df['occur_hour'].between(17, 21, inclusive=True), 'Evening',
-     np.where(df['occur_hour'].between(21,24, inclusive=True), 'Night', 'Unknown')))))
+     np.where(df['occur_hour'].between(5, 12, inclusive="both"), 'Morning',
+     np.where(df['occur_hour'].between(12, 17, inclusive="both"), 'Afternoon',
+     np.where(df['occur_hour'].between(17, 21, inclusive="both"), 'Evening',
+     np.where(df['occur_hour'].between(21,24, inclusive="both"), 'Night', 'Unknown')))))
 
     return df
