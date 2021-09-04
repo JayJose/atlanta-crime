@@ -13,7 +13,7 @@ import pandas as pd
 from get_data import generate_combo_data, generate_data
 
 # get crime data
-df = generate_data(env='cloud')
+df = generate_data(env='local')
 
 last_rec = df.occur_datetime.sort_values(ascending=False).dt.strftime('%d %b %Y').iloc[0]
 
@@ -176,6 +176,8 @@ def update_map(neighborhood, crimes, slider_values, map_style):#, npus): #map_st
     # create bar chart by time of day
     df_bar = df_map.groupby(['occur_period']).agg(crimes=('offense_id', len)).reset_index()
     fig_bar = px.bar(df_bar, x = 'occur_period', y = 'crimes', text = 'crimes',
+        template='simple_white',
+        #color_discrete_sequence=["#A9A9A9"],
         category_orders={"occur_period": ["Morning", "Afternoon", "Evening", "Night"]})
     
     fig_bar.update_layout(
