@@ -13,7 +13,7 @@ from get_data import *
 from generate_charts import *
 
 # get crime data
-df = generate_data(env='local')
+df = generate_data(env='cloud')
 
 last_rec = df.occur_datetime.sort_values(ascending=False).dt.strftime('%b %d %Y').iloc[0]
 

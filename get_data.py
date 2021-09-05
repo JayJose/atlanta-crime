@@ -86,7 +86,7 @@ def generate_map_data(df, neighborhood, crimes, slider_values):
         df_map = df_map
     # if crime is selected...
     else:
-        df_map = df_map[df.Crime.isin(crimes)]  
+        df_map = df_map[df_map.Crime.isin(crimes)]  
 
     # filter based on date slider
     df_map = df_map[(df_map['occur_day'] >= slider_values[0]) & (df_map['occur_day'] <= slider_values[1])]
