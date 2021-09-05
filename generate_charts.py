@@ -32,7 +32,6 @@ def generate_column_chart(df):
 
     # aggregate data by period
     df_col = df.groupby(['occur_period']).agg(crimes=('offense_id', len)).reset_index()
-    
     # create bar chart
     fig_col = px.bar(df_col, x = 'occur_period', y = 'crimes', text = 'crimes',
         template='simple_white',
@@ -81,14 +80,14 @@ def generate_map(df, zoom, map_style):
     # set margin, remove legend
     fig_map.update_layout(
         legend=dict(
-        yanchor="top",
-        y=0.99,
-        xanchor="left",
-        x=0.01),
-        coloraxis_showscale=False,
-        margin=dict(l=10, r=10, t=10, b=10),
-        mapbox_style=map_style,
-        uirevision=True,
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=0.01),
+            coloraxis_showscale=False,
+            margin=dict(l=10, r=10, t=10, b=10),
+            mapbox_style=map_style,
+            uirevision=True,
     )
 
     return fig_map
@@ -98,20 +97,31 @@ def generate_dot_plot(df):
     #### create dot plot by crime ####
 
     # aggregate data by period
-    df_bar = df.groupby(['Crime']).agg(crimes=('offense_id', len)).reset_index()
-    
+    df_bar = df.groupby(['Crime', 'year']).agg(crimes=('offense_id', len)).reset_index()
+    df_bar = df_bar[df_bar.Crime != 'Manslaughter']
     # create dot plot
     fig_dot = px.scatter(
         df_bar.sort_values(by='crimes'), x = 'crimes', y = 'Crime',
+        log_x=False,
+        category_orders={"year": ["2020", "2021"]},
+        color = 'year', color_discrete_sequence=["darkgray", "darkblue"],
         template='simple_white',
-        height = 200
+        height = 250
     )
     
     # remove x-axis, remove y-axis title from dot plot
     fig_dot.update_layout(
         margin=dict(l=10, r=10, t=10, b=10),
         yaxis=dict(title=None, tickangle=0, tickfont=dict(size=10)),
-        xaxis=dict(visible=True, title=None)
+        xaxis=dict(visible=True, title=None),
+        legend=dict(
+            orientation='h',
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+            title=''
+        )
     )
     
     return fig_dot

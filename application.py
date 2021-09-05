@@ -8,10 +8,9 @@ from dash.dependencies import Input, Output
 
 import plotly.express as px
 import pandas as pd
-# from azure.cosmos.cosmos_client import CosmosClient
 
 from get_data import *
-from generate_charts import generate_bar_chart, generate_column_chart, generate_dot_plot, generate_map, generate_trend_chart
+from generate_charts import *
 
 # get crime data
 df = generate_data(env='local')
@@ -39,21 +38,21 @@ dash_app.layout = dbc.Container(
             dbc.Col(dcc.Dropdown(
                 id='nhood-dropdown',
                 options=[{"value": n, "label": n}
-                    for n in df.neighborhood.sort_values().astype(str).unique()],
+                    for n in df[df.year=='2021'].neighborhood.sort_values().astype(str).unique()],
                 multi=True,
                 placeholder="Filter by neighborhood(s)"), width = 3),
             dbc.Col(dcc.Dropdown(
                 id='crime-dropdown',
                 options=[{"value": c, "label": c}
-                    for c in df.Crime.sort_values().astype(str).unique()],
+                    for c in df[df.year=='2021'].Crime.sort_values().astype(str).unique()],
                 multi=True,
                 placeholder = "Filter by crime(s)"), width = 3),
             dbc.Col(dcc.RangeSlider(
                 id='occur-range-slider',
-                min=df['occur_day'].min(),
-                max=df['occur_day'].max(),
+                min=df[df.year=='2021']['occur_day'].min(),
+                max=df[df.year=='2021']['occur_day'].max(),
                 step=1,
-                value=[df['occur_day'].min(), df['occur_day'].max()],
+                value=[df[df.year=='2021']['occur_day'].min(), df['occur_day'].max()],
                 marks = {
                     1: {'label': 'Jan 1'},
                     91: {'label': 'Apr 1'},
@@ -69,7 +68,7 @@ dash_app.layout = dbc.Container(
                     id='crime-range-label',
                     style={'font-size':14}
                 ),
-                html.H5("X% increase", id="crime-change"),
+                html.H5(id="crime-change-label"),
                 html.P(
                     "2021 vs. 2020",
                     style={'font-size':14}
@@ -106,6 +105,7 @@ dash_app.layout = dbc.Container(
     Output('crime-dots', 'figure'),
     Output('crime-trend', 'figure'),
     Output('crime-range-label', 'children'),
+    Output('crime-change-label', 'children'),
     Input('nhood-dropdown', 'value'),
     Input('crime-dropdown', 'value'),    
     Input('occur-range-slider', 'value'),
@@ -121,17 +121,21 @@ def update_map(neighborhood, crimes, slider_values, map_style):
         zoom = 10.5
 
     # create charts
-    fig_map = generate_map(df_map, zoom, map_style)
-    fig_trend = generate_trend_chart(df_map)
-    fig_column = generate_column_chart(df_map)
-    fig_bar = generate_bar_chart(df_map)
+    fig_map = generate_map(df_map[df_map.year == '2021'], zoom, map_style)
+    fig_trend = generate_trend_chart(df_map[df_map.year == '2021'])
+    #fig_column = generate_column_chart(df_map)
+    #fig_bar = generate_bar_chart(df_map)
     fig_dot = generate_dot_plot(df_map)
 
     # create date range label - "from X to Y"
     date_format = '%b %d %Y'
-    date_range = "From " + df_map.occur_datetime.sort_values(ascending=True).dt.strftime(date_format).iloc[0] + " to " + df_map.occur_datetime.sort_values(ascending=False).dt.strftime(date_format).iloc[0]
+    date_range = "From " + df_map[df_map.year=='2021'].occur_datetime.sort_values(ascending=True).dt.strftime(date_format).iloc[0] + " to " + df_map[df_map.year=='2021'].occur_datetime.sort_values(ascending=False).dt.strftime(date_format).iloc[0]
     
-    return fig_map, f"{len(df_map):,} Crimes", fig_dot, fig_trend, date_range
+    # calculate percent change and generate statement
+    chg = len(df_map[df_map.year=='2021'])/len(df_map[df_map.year=='2020']) - 1
+    chg_stmt = f"{chg:3.1%} {'increase' if chg > 0 else 'decrease'}"
+
+    return fig_map, f"{len(df_map[df_map.year=='2021']):,} Crimes", fig_dot, fig_trend, date_range, chg_stmt
 
 if __name__ == '__main__':
     dash_app.run_server(debug=True)
