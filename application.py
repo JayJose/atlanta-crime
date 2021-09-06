@@ -32,25 +32,41 @@ dash_app.title = 'Atlanta Crime'
 # configure app layout
 dash_app.layout = dbc.Container(
     children=[
-        dbc.Row(dbc.Col(html.H2(children='2021 Atlanta Crime Map'))),
-        dbc.Row([
-            dbc.Col(html.A(f"Data current as of {last_date:%b %d %Y}", href='https://www.atlantapd.org/i-want-to/crime-data-downloads'), width = 6),
-        ]),
-        html.Br(),
-        dbc.Row([
-            dbc.Col(dcc.Dropdown(
-                id='nhood-dropdown',
-                options=[{"value": n, "label": n}
-                    for n in df[df.year=='2021'].neighborhood.sort_values().astype(str).unique()],
-                multi=True,
-                placeholder="Filter by neighborhood(s)"), width = 3),
-            dbc.Col(dcc.Dropdown(
-                id='crime-dropdown',
-                options=[{"value": c, "label": c}
-                    for c in df[df.year=='2021'].Crime.sort_values().astype(str).unique()],
-                multi=True,
-                placeholder = "Filter by crime(s)"), width = 3),
-            dbc.Col(
+        dbc.Row([ # begin R1
+            dbc.Col([ # R1C1
+                html.H2(
+                    children='2021 Atlanta Crime Map'
+                )],
+                align="start", width = 9
+            ),
+        ]), # end R1
+        dbc.Row([ # begin R2
+            dbc.Col( # R2C1
+                html.A(
+                    f"Data updated through {last_date:%b %d %Y}",
+                    href='https://www.atlantapd.org/i-want-to/crime-data-downloads'
+                ),
+                width = 3, align="start"
+            ),
+            dbc.Col([ # R2C2
+                dcc.Dropdown(
+                    id='nhood-dropdown',
+                    options=[{"value": n, "label": n}
+                        for n in df[df.year=='2021'].neighborhood.sort_values().astype(str).unique()],
+                    multi=True,
+                    placeholder="Filter by neighborhood(s)")
+            ], align='start', width=3
+            ),
+            dbc.Col([ # R2C3
+                dcc.Dropdown(
+                    id='crime-dropdown',
+                    options=[{"value": c, "label": c}
+                        for c in df[df.year=='2021'].Crime.sort_values().astype(str).unique()],
+                    multi=True,
+                    placeholder = "Filter by crime(s)")
+            ], align='start', width=3
+            ),
+            dbc.Col([ # R2C4
                 dcc.DatePickerRange(
                     id='my-date-picker-range',
                     min_date_allowed=first_date,
@@ -59,12 +75,11 @@ dash_app.layout = dbc.Container(
                     end_date=last_date,
                     initial_visible_month=last_date,
                     clearable=False
-                    ),
-                width=4
-                )
-            ]), # end row
-        dbc.Row([dbc.Col(html.Br())]),
-        dbc.Row([
+                    )
+            ], align='start', width=3
+            ),
+        ]), # end R2
+        dbc.Row([ # begin R3
             dbc.Col([
                 html.H6("Summary"),
                 html.P(
