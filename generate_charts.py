@@ -32,19 +32,22 @@ def generate_column_chart(df):
 
     # aggregate data by period
     df_col = df.groupby(['occur_period']).agg(crimes=('offense_id', len)).reset_index()
+    
     # create bar chart
     fig_col = px.bar(df_col, x = 'occur_period', y = 'crimes', text = 'crimes',
         template='simple_white',
-        #color_discrete_sequence=["#A9A9A9"],
+        height=250,
+        color_discrete_sequence=["#A9A9A9"],
         category_orders={"occur_period": ["Morning", "Afternoon", "Evening", "Night"]})
     
     # remove y-axis, remove x-axis title from bar chart
     fig_col.update_layout(
-        margin=dict(l=10, r=10, t=50, b=10),
-        xaxis_title=None, yaxis=dict(visible=False), title = "Crimes by Time of Day")
+        margin=dict(l=10, r=10, t=10, b=10),
+        xaxis_title=None, yaxis=dict(visible=False)
+    )
 
     # format bar chart text labels
-    fig_col.update_traces(textposition='outside')
+    fig_col.update_traces(texttemplate='%{text:,}', textposition='auto')
     
     return fig_col
 
@@ -75,7 +78,7 @@ def generate_map(df, zoom, map_style):
         )
 
     # add pitch
-    fig_map.update_mapboxes(pitch=25)
+    fig_map.update_mapboxes(pitch=30)
 
     # set margin, remove legend
     fig_map.update_layout(
@@ -104,7 +107,7 @@ def generate_dot_plot(df):
         df_bar.sort_values(by='crimes'), x = 'crimes', y = 'Crime',
         log_x=False,
         category_orders={"year": ["2020", "2021"]},
-        color = 'year', color_discrete_sequence=["darkgray", "darkblue"],
+        color = 'year', color_discrete_sequence=["#989898", "#F00000"],
         template='simple_white',
         height = 250
     )
@@ -121,7 +124,8 @@ def generate_dot_plot(df):
             xanchor="right",
             x=1,
             title=''
-        )
+        ),
+        #plot_bgcolor='#F5F5F5'
     )
     
     return fig_dot

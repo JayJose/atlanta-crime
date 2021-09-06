@@ -7,6 +7,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 
 import plotly.express as px
+from datetime import datetime
 import pandas as pd
 
 from get_data import *
@@ -18,8 +19,6 @@ df = generate_data(env='local')
 # first and last days in 2021 data
 first_date = df[df.year=='2021']['occur_datetime'].dt.date.min()
 last_date = df[df.year=='2021']['occur_datetime'].dt.date.max()
-
-last_rec = df.occur_datetime.sort_values(ascending=False).dt.strftime('%b %d %Y').iloc[0]
 
 # styling
 map_styles = ['open-street-map', 'carto-positron', 'carto-darkmatter', 'stamen-terrain', 'stamen-toner']
@@ -35,7 +34,7 @@ dash_app.layout = dbc.Container(
     children=[
         dbc.Row(dbc.Col(html.H2(children='2021 Atlanta Crime Map'))),
         dbc.Row([
-            dbc.Col(html.A("Data current as of " + last_rec, href='https://www.atlantapd.org/i-want-to/crime-data-downloads'), width = 6),
+            dbc.Col(html.A(f"Data current as of {last_date:%b %d %Y}", href='https://www.atlantapd.org/i-want-to/crime-data-downloads'), width = 6),
         ]),
         html.Br(),
         dbc.Row([
@@ -73,13 +72,13 @@ dash_app.layout = dbc.Container(
                     style={'font-size':14}
                 ),
             html.Br(),                    
-            html.P("Crime Trend, 7-Day Moving Average"),
+            html.P("Crime Trend, 7-Day Moving Average", style={'font-size':14}),
             dcc.Graph(
                 id='crime-trend',
                 config={'displayModeBar': False}
                 ),
             html.Br(),                    
-            html.P("Crimes by Crime Type"),
+            html.P("Crimes by Time of Day", style={'font-size':14}),
             dcc.Graph(
                 id='crime-dots',
                 config={'displayModeBar': False}
@@ -135,24 +134,25 @@ def update_map(neighborhood, crimes, map_style, start_date, end_date):
     # create charts
     fig_map = generate_map(df_map[df_map.year == '2021'], zoom, map_style)
     fig_trend = generate_trend_chart(df_map[df_map.year == '2021'])
-    #fig_column = generate_column_chart(df_map)
+    fig_column = generate_column_chart(df_map)
     #fig_bar = generate_bar_chart(df_map)
     fig_dot = generate_dot_plot(df_map)
 
     # create date range label - "from X to Y"
     date_format = '%b %d %Y'
+    start_as_date = pd.to_datetime(start_date)
+    end_as_date = pd.to_datetime(end_date)
 
     # calculate number of crimes
     crime_cnt = len(df_map[df_map.year=='2021'])
 
     # calculate percent change and generate statement
     chg = len(df_map[df_map.year=='2021'])/len(df_map[df_map.year=='2020']) - 1
-    chg_stmt = f"{chg:3.1%} {'increase' if chg >= 0 else 'decrease'}"
 
     # create summary
-    crime_stmt = f"{crime_cnt:,} crimes occured between {start_date} and {end_date}. {'An increase' if chg >= 0 else 'A decrease'} of {chg:3.1%} compared to the same period in 2020."
+    crime_stmt = f"{crime_cnt:,} crimes occured between {start_as_date:%b %d %Y} and {end_as_date:%b %d %Y}. {'An increase' if chg >= 0 else 'A decrease'} of {chg:3.1%} compared to the same period in 2020."
 
-    return fig_map, fig_dot, fig_trend, crime_stmt
+    return fig_map, fig_column, fig_trend, crime_stmt
 
 if __name__ == '__main__':
     dash_app.run_server(debug=True)

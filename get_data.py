@@ -66,7 +66,7 @@ def generate_data(env = 'local'):
      np.where(df['occur_hour'].between(21,24, inclusive="both"), 'Night', 'Unknown')))))
 
     # add datepart columns
-    df['year'] = df.occur_datetime.dt.year.astype(str) # intentional for easier stratifying
+    df['year'] = df.occur_datetime.dt.year.astype(str) # cast as string for easier stratifying
     df['month'] = df.occur_datetime.dt.month
     df['day'] = df.occur_datetime.dt.day
 
