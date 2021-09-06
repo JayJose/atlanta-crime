@@ -59,6 +59,15 @@ dash_app.layout = dbc.Container(
                     182: {'label': 'Jul 1'},
                     244: {'label': 'Sep 1'}
                 }), width = 4),
+            dcc.DatePickerRange(
+                id='my-date-picker-range',
+                min_date_allowed=df[df.year=='2021']['occur_datetime'].min(),
+                max_date_allowed=df[df.year=='2021']['occur_datetime'].max(),
+                start_date=df[df.year=='2021']['occur_datetime'].min(),
+                end_date=df[df.year=='2021']['occur_datetime'].max(),
+                initial_visible_month=df[df.year=='2021']['occur_datetime'].max(),
+                clearable=False
+                ),
             ]), # end row
         dbc.Row([dbc.Col(html.Br())]),
         dbc.Row([
@@ -116,11 +125,16 @@ dash_app.layout = dbc.Container(
     Input('crime-dropdown', 'value'),    
     Input('occur-range-slider', 'value'),
     Input('layer-dropdown', 'value'),
+    Input('my-date-picker-range', 'start_date'),
+    Input('my-date-picker-range', 'end_date')
 )
-def update_map(neighborhood, crimes, slider_values, map_style):
+def update_map(neighborhood, crimes, slider_values, map_style, start_date, end_date):
     
     df_map = generate_map_data(df, neighborhood, crimes, slider_values)
-
+    
+    print(slider_values)
+    print([start_date, end_date])
+    
     # set zoom
     zoom = 14
     if neighborhood is None or not neighborhood or len(neighborhood) > 1:
