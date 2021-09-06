@@ -13,7 +13,7 @@ from get_data import *
 from generate_charts import *
 
 # get crime data
-df = generate_data(env='cloud')
+df = generate_data(env='local')
 
 last_rec = df.occur_datetime.sort_values(ascending=False).dt.strftime('%b %d %Y').iloc[0]
 
@@ -31,7 +31,7 @@ dash_app.layout = dbc.Container(
     children=[
         dbc.Row(dbc.Col(html.H2(children='2021 Atlanta Crime Map'))),
         dbc.Row([
-            dbc.Col(html.A("Data current as of " + last_rec, href='https://www.atlantapd.org/i-want-to/crime-data-downloads'), width = 3),
+            dbc.Col(html.A("Data current as of " + last_rec, href='https://www.atlantapd.org/i-want-to/crime-data-downloads'), width = 6),
         ]),
         html.Br(),
         dbc.Row([
@@ -74,10 +74,16 @@ dash_app.layout = dbc.Container(
                     style={'font-size':14}
                 ),
             html.P('Crime Trend, 7-day Moving Average'),
-            dcc.Graph(id='crime-trend'),
+            dcc.Graph(
+                id='crime-trend',
+                config={'displayModeBar': False}
+                ),
             html.Br(),                    
             html.P("Crimes by Crime Type"),
-            dcc.Graph(id='crime-dots'),
+            dcc.Graph(
+                id='crime-dots',
+                config={'displayModeBar': False}
+                ),
             ], width = 3),
         dbc.Col(dcc.Graph(id="atl-map"), width = 9)
         ]),
