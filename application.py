@@ -14,7 +14,7 @@ from get_data import *
 from generate_charts import *
 
 # get crime data
-df = generate_data(env='cloud')
+df = generate_data(env='local')
 
 # first and last days in 2021 data
 first_date = df[df.year=='2021']['occur_datetime'].dt.date.min()
@@ -46,7 +46,7 @@ dash_app.layout = dbc.Container(
                     f"Data updated through {last_date:%b %d %Y}",
                     href='https://www.atlantapd.org/i-want-to/crime-data-downloads'
                 ),
-                width = 3, align="start"
+                width = 3, lg=3, align="start"
             ),
             dbc.Col([ # R2C2
                 dcc.Dropdown(
@@ -55,7 +55,7 @@ dash_app.layout = dbc.Container(
                         for n in df[df.year=='2021'].neighborhood.sort_values().astype(str).unique()],
                     multi=True,
                     placeholder="Filter by neighborhood(s)")
-            ], align='start', width=3
+            ], align='start', width=3, lg=3
             ),
             dbc.Col([ # R2C3
                 dcc.Dropdown(
@@ -64,7 +64,7 @@ dash_app.layout = dbc.Container(
                         for c in df[df.year=='2021'].Crime.sort_values().astype(str).unique()],
                     multi=True,
                     placeholder = "Filter by crime(s)")
-            ], align='start', width=3
+            ], align='start', width=3, lg=3
             ),
             dbc.Col([ # R2C4
                 dcc.DatePickerRange(
@@ -80,31 +80,34 @@ dash_app.layout = dbc.Container(
             ),
         ]), # end R2
         dbc.Row([ # begin R3
-            dbc.Col([
-                html.H6("Summary"),
+            dbc.Col([ # R3C1
                 html.P(
                     id='crime-statement',
                     style={'font-size':14}
-                ),
-            html.Br(),                    
-            html.P("Crime Trend, 7-Day Moving Average", style={'font-size':14}),
-            dcc.Graph(
-                id='crime-trend',
-                config={'displayModeBar': False}
-                ),
-            html.Br(),                    
-            html.P("Crimes by Time of Day", style={'font-size':14}),
-            dcc.Graph(
-                id='crime-dots',
-                config={'displayModeBar': False}
-                ),
-            ], width = 3),
-        dbc.Col(
-            dcc.Graph(
-                id="atl-map",
-                config={'displayModeBar': False}
-                ),
-            width = 9)
+                )
+            ], width=3, lg=3),
+            dbc.Col([ # R3C2           
+                html.P("Crime Trend, 7-Day Moving Average", style={'font-size':14}),
+                dcc.Graph(
+                    id='crime-trend',
+                    config={'displayModeBar': False}
+                )
+            ], width=3, lg=3),
+            dbc.Col([ # R3C3
+                html.P("Crimes by Offense, 2021 vs. 2020", style={'font-size':14}),
+                dcc.Graph(
+                    id='crime-dots',
+                    config={'displayModeBar': False}
+                    ),
+            ], width=3, lg=3)
+        ]), # end R3
+        dbc.Row([ # begin R4
+            dbc.Col(
+                dcc.Graph(
+                    id="atl-map",
+                    config={'displayModeBar': False}
+                    ),
+            width = 6)
         ]),
         # row 6 - beneath the map
         dbc.Row([
@@ -114,7 +117,7 @@ dash_app.layout = dbc.Container(
                     for m in map_styles],
                 multi=False,
                 clearable=False,
-                value="carto-darkmatter"), width={"size": 3, "offset": 3},)
+                value="carto-darkmatter"), width={"size": 3},)
         ])
     ], # close children
     fluid = True,
@@ -140,9 +143,9 @@ def update_map(neighborhood, crimes, map_style, start_date, end_date):
     df_map = generate_map_data(df, neighborhood, crimes, start_date, end_date)
 
     # set zoom
-    zoom = 14
+    zoom = 13
     if neighborhood is None or not neighborhood or len(neighborhood) > 1:
-        zoom = 10.5
+        zoom = 10
 
     # create charts
     fig_map = generate_map(df_map[df_map.year == '2021'], zoom, map_style)

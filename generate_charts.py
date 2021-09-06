@@ -74,7 +74,7 @@ def generate_map(df, zoom, map_style):
             'offense_id': True,
         },
         size_max=15, zoom=zoom,
-        height = 700
+        height = 500
         )
 
     # add pitch
@@ -110,7 +110,7 @@ def generate_dot_plot(df):
         category_orders={"year": ["2020", "2021"]},
         color = 'year', color_discrete_sequence=["#989898", "#F00000"],
         template='simple_white',
-        height = 250,
+        height = 200,
     )
     
     # remove x-axis, remove y-axis title from dot plot
