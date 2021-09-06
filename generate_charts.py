@@ -145,6 +145,7 @@ def generate_trend_chart(df):
         df_lines,
         x=df_lines.index, y="crimes",
         template='simple_white',
+        color_discrete_map={"crimes": "#darkblue"},
         height=200
     )
     
