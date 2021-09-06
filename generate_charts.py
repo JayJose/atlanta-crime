@@ -102,6 +102,7 @@ def generate_dot_plot(df):
     # aggregate data by period
     df_bar = df.groupby(['Crime', 'year']).agg(crimes=('offense_id', len)).reset_index()
     df_bar = df_bar[df_bar.Crime != 'Manslaughter']
+    
     # create dot plot
     fig_dot = px.scatter(
         df_bar.sort_values(by='crimes'), x = 'crimes', y = 'Crime',
@@ -109,7 +110,7 @@ def generate_dot_plot(df):
         category_orders={"year": ["2020", "2021"]},
         color = 'year', color_discrete_sequence=["#989898", "#F00000"],
         template='simple_white',
-        height = 250
+        height = 250,
     )
     
     # remove x-axis, remove y-axis title from dot plot
@@ -161,4 +162,3 @@ def generate_trend_chart(df):
     )
 
     return fig_lines
-

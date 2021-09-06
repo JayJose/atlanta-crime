@@ -136,8 +136,6 @@ dash_app.layout = dbc.Container(
     Input('my-date-picker-range', 'end_date')
 )
 def update_map(neighborhood, crimes, map_style, start_date, end_date):
-    
-    print(neighborhood, crimes, map_style, start_date, end_date)
 
     df_map = generate_map_data(df, neighborhood, crimes, start_date, end_date)
 
@@ -149,7 +147,7 @@ def update_map(neighborhood, crimes, map_style, start_date, end_date):
     # create charts
     fig_map = generate_map(df_map[df_map.year == '2021'], zoom, map_style)
     fig_trend = generate_trend_chart(df_map[df_map.year == '2021'])
-    fig_column = generate_column_chart(df_map)
+    #fig_column = generate_column_chart(df_map)
     #fig_bar = generate_bar_chart(df_map)
     fig_dot = generate_dot_plot(df_map)
 
@@ -167,7 +165,7 @@ def update_map(neighborhood, crimes, map_style, start_date, end_date):
     # create summary
     crime_stmt = f"{crime_cnt:,} crimes occured between {start_as_date:%b %d %Y} and {end_as_date:%b %d %Y}. {'An increase' if chg >= 0 else 'A decrease'} of {chg:3.1%} compared to the same period in 2020."
 
-    return fig_map, fig_column, fig_trend, crime_stmt
+    return fig_map, fig_dot, fig_trend, crime_stmt
 
 if __name__ == '__main__':
     dash_app.run_server(debug=True)
