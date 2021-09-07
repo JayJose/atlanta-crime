@@ -56,6 +56,8 @@ def generate_map(df, zoom, map_style):
     #### create map #### 
 
     # create map
+    center = dict(lat=33.747583, lon=-84.421331)
+
     fig_map = px.scatter_mapbox(
         df, lat="lat", lon="long",
         color="scaled_occur_day",
@@ -74,10 +76,12 @@ def generate_map(df, zoom, map_style):
             'offense_id': True,
         },
         size_max=14,
-        zoom=zoom,
-        center = dict(lat=33.747583, lon=-84.421331),
-        height = 400
+        zoom=zoom,  
+        height = 400,
     )
+
+    if len(df.neighborhood.unique()) > 1:
+        fig_map.update_mapboxes(center=center)
 
     # add pitch
     fig_map.update_mapboxes(pitch=30)
