@@ -85,29 +85,29 @@ dash_app.layout = dbc.Container(
                     id='crime-statement',
                     style={'font-size':14}
                 )
-            ], width=3, lg=3),
-            dbc.Col([ # R3C2           
+            ], width=6, sm=12),
+        ]), # end R4
+        dbc.Row([ # begin R4
+        ]), # end R4
+        dbc.Row([ # begin R4
+            dbc.Col( # R4C1
+                dcc.Graph(
+                    id="atl-map",
+                    config={'displayModeBar': False}
+                    ),
+            width = 6),
+            dbc.Col([ # R4C2       
                 html.P("Crime Trend, 7-Day Moving Average", style={'font-size':14}),
                 dcc.Graph(
                     id='crime-trend',
                     config={'displayModeBar': False}
-                )
-            ], width=3, lg=3),
-            dbc.Col([ # R3C3
+                ),
                 html.P("Crimes by Offense, 2021 vs. 2020", style={'font-size':14}),
                 dcc.Graph(
                     id='crime-dots',
                     config={'displayModeBar': False}
                     ),
-            ], width=3, lg=3)
-        ]), # end R3
-        dbc.Row([ # begin R4
-            dbc.Col(
-                dcc.Graph(
-                    id="atl-map",
-                    config={'displayModeBar': False}
-                    ),
-            width = 6)
+            ], width=3, lg=3)            
         ]),
         # row 6 - beneath the map
         dbc.Row([
