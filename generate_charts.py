@@ -73,9 +73,11 @@ def generate_map(df, zoom, map_style):
             'npu': True,
             'offense_id': True,
         },
-        size_max=15, zoom=zoom,
-        height = 500
-        )
+        size_max=14,
+        zoom=zoom,
+        center = dict(lat=33.747583, lon=-84.421331),
+        height = 400
+    )
 
     # add pitch
     fig_map.update_mapboxes(pitch=30)
