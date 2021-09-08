@@ -72,7 +72,7 @@ def generate_data(env = 'local'):
 
     return df
 
-def generate_map_data(df, neighborhood, crimes, start_date, end_date):
+def generate_map_data(df, neighborhood, crimes, period):
 
     # if no neighborhood is selected...
     if neighborhood is None or not neighborhood:
@@ -89,8 +89,8 @@ def generate_map_data(df, neighborhood, crimes, start_date, end_date):
         df_map = df_map[df_map.Crime.isin(crimes)]
 
     # get min/max occur days
-    min_day = df[df.occur_datetime == start_date].occur_day.min()
-    max_day = df[df.occur_datetime == end_date].occur_day.max()
+    min_day = df[df.occur_day == period[0]].occur_day.min()
+    max_day = df[df.occur_day == period[1]].occur_day.max()
 
     # filter based on date slider
     df_map = df_map[(df_map['occur_day'] >= min_day) & (df_map['occur_day'] <= max_day)]

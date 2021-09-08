@@ -14,11 +14,13 @@ from get_data import *
 from generate_charts import *
 
 # get crime data
-df = generate_data(env='local')
+df = generate_data(env='cloud')
 
 # first and last days in 2021 data
 first_date = df[df.year=='2021']['occur_datetime'].dt.date.min()
+first_day = df[df.year=='2021']['occur_day'].min()
 last_date = df[df.year=='2021']['occur_datetime'].dt.date.max()
+last_day = df[df.year=='2021']['occur_day'].max()
 
 # styling
 map_styles = ['open-street-map', 'carto-positron', 'carto-darkmatter', 'stamen-terrain', 'stamen-toner']
@@ -67,15 +69,17 @@ dash_app.layout = dbc.Container(
             ], align='start', width=3, lg=3
             ),
             dbc.Col([ # R2C4
-                dcc.DatePickerRange(
-                    id='my-date-picker-range',
-                    min_date_allowed=first_date,
-                    max_date_allowed=last_date,
-                    start_date=first_date,
-                    end_date=last_date,
-                    initial_visible_month=last_date,
+                dcc.Dropdown(
+                    id='period-dropdown',
+                    options=[
+                        {'label': 'Year-to-date', 'value': 'year_to_date'},
+                        {'label': 'Last 7 days', 'value': 'last_week'},
+                        {'label': 'Last 30 days', 'value': 'last_month'}
+                    ],
+                    value='year_to_date',
+                    multi=False,
                     clearable=False
-                    )
+                )
             ], align='start', width=3
             ),
         ]), # end R2
@@ -135,12 +139,19 @@ dash_app.layout = dbc.Container(
     Input('nhood-dropdown', 'value'),
     Input('crime-dropdown', 'value'),    
     Input('layer-dropdown', 'value'),
-    Input('my-date-picker-range', 'start_date'),
-    Input('my-date-picker-range', 'end_date')
+    Input('period-dropdown', 'value')
 )
-def update_map(neighborhood, crimes, map_style, start_date, end_date):
+def update_map(neighborhood, crimes, map_style, period):
 
-    df_map = generate_map_data(df, neighborhood, crimes, start_date, end_date)
+    periods = {
+        'year_to_date': [first_day, last_day],
+        'last_week': [last_day-6, last_day],
+        'last_month': [last_day-29, last_day],
+    }
+
+    analysis_period = periods[period]
+
+    df_map = generate_map_data(df, neighborhood, crimes, analysis_period)
 
     # set zoom
     zoom = 13
@@ -156,8 +167,10 @@ def update_map(neighborhood, crimes, map_style, start_date, end_date):
 
     # create date range label - "from X to Y"
     date_format = '%b %d %Y'
-    start_as_date = pd.to_datetime(start_date)
-    end_as_date = pd.to_datetime(end_date)
+    start_as_date = df[df.occur_day == analysis_period[0]].occur_datetime.max()
+    end_as_date = df[df.occur_day == analysis_period[1]].occur_datetime.max()
+
+    print(start_as_date, end_as_date)
 
     # calculate number of crimes
     crime_cnt = len(df_map[df_map.year=='2021'])
