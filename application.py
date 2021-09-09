@@ -24,7 +24,7 @@ last_day = df[df.year=='2021']['occur_day'].max()
 
 # styling
 map_styles = ['open-street-map', 'carto-positron', 'carto-darkmatter', 'stamen-terrain', 'stamen-toner']
-external_stylesheets = [dbc.themes.BOOTSTRAP]
+external_stylesheets = [dbc.themes.FLATLY]
 
 dash_app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app = dash_app.server
@@ -36,7 +36,7 @@ dash_app.layout = dbc.Container(
     children=[
         dbc.Row([ # begin R1
             dbc.Col([ # R1C1
-                html.H2(
+                html.H3(
                     children='2021 Atlanta Crime Map'
                 )],
                 align="start", width = 9
@@ -48,7 +48,7 @@ dash_app.layout = dbc.Container(
                     f"Data updated through {last_date:%b %d %Y}",
                     href='https://www.atlantapd.org/i-want-to/crime-data-downloads'
                 ),
-                width = 3, lg=3, align="start"
+                md=3
             ),
             dbc.Col([ # R2C2
                 dcc.Dropdown(
@@ -57,7 +57,7 @@ dash_app.layout = dbc.Container(
                         for n in df[df.year=='2021'].neighborhood.sort_values().astype(str).unique()],
                     multi=True,
                     placeholder="Filter by neighborhood(s)")
-            ], align='start', width=3, lg=3
+            ], md=3
             ),
             dbc.Col([ # R2C3
                 dcc.Dropdown(
@@ -66,7 +66,7 @@ dash_app.layout = dbc.Container(
                         for c in df[df.year=='2021'].Crime.sort_values().astype(str).unique()],
                     multi=True,
                     placeholder = "Filter by crime(s)")
-            ], align='start', width=3, lg=3
+            ], md=3
             ),
             dbc.Col([ # R2C4
                 dcc.Dropdown(
@@ -80,16 +80,17 @@ dash_app.layout = dbc.Container(
                     multi=False,
                     clearable=False
                 )
-            ], align='start', width=3
+            ], md=3
             ),
         ]), # end R2
+        html.Br(),
         dbc.Row([ # begin R3
             dbc.Col([ # R3C1
                 html.P(
                     id='crime-statement',
                     style={'font-size':14}
                 )
-            ], width=6, sm=12),
+            ], md=12),
         ]), # end R4
         dbc.Row([ # begin R4
         ]), # end R4
@@ -99,19 +100,23 @@ dash_app.layout = dbc.Container(
                     id="atl-map",
                     config={'displayModeBar': False}
                     ),
-            width = 6),
+            width = 12)
+        ]),
+        dbc.Row([
             dbc.Col([ # R4C2       
                 html.P("Crime Trend, 7-Day Moving Average", style={'font-size':14}),
                 dcc.Graph(
                     id='crime-trend',
                     config={'displayModeBar': False}
                 ),
+            ], md=3),
+            dbc.Col([
                 html.P("Crimes by Offense, 2021 vs. 2020", style={'font-size':14}),
                 dcc.Graph(
                     id='crime-dots',
                     config={'displayModeBar': False}
                     ),
-            ], width=3, lg=3)            
+            ], md=3)            
         ]),
         # row 6 - beneath the map
         dbc.Row([
@@ -156,21 +161,26 @@ def update_map(neighborhood, crimes, map_style, period):
     # set zoom
     zoom = 13
     if neighborhood is None or not neighborhood or len(neighborhood) > 1:
-        zoom = 10
+        zoom = 10.5
 
     # create charts
     fig_map = generate_map(df_map[df_map.year == '2021'], zoom, map_style)
-    fig_trend = generate_trend_chart(df_map[df_map.year == '2021'])
-    #fig_column = generate_column_chart(df_map)
+    
+    if period == 'last_week':
+        fig_trend = generate_trend_chart(df_map[df_map.year == '2021'])
+    else:
+        fig_trend = generate_7d_trend_chart(df_map[df_map.year == '2021'])
+    
+    print(period)
+    fig_column = generate_column_chart(df_map)
+    
     #fig_bar = generate_bar_chart(df_map)
-    fig_dot = generate_dot_plot(df_map)
+    #fig_dot = generate_dot_plot(df_map)
 
     # create date range label - "from X to Y"
     date_format = '%b %d %Y'
     start_as_date = df[df.occur_day == analysis_period[0]].occur_datetime.max()
     end_as_date = df[df.occur_day == analysis_period[1]].occur_datetime.max()
-
-    print(start_as_date, end_as_date)
 
     # calculate number of crimes
     crime_cnt = len(df_map[df_map.year=='2021'])
@@ -181,7 +191,7 @@ def update_map(neighborhood, crimes, map_style, period):
     # create summary
     crime_stmt = f"{crime_cnt:,} crimes occured between {start_as_date:%b %d %Y} and {end_as_date:%b %d %Y}. {'An increase' if chg >= 0 else 'A decrease'} of {chg:3.1%} compared to the same period in 2020."
 
-    return fig_map, fig_dot, fig_trend, crime_stmt
+    return fig_map, fig_column, fig_trend, crime_stmt
 
 if __name__ == '__main__':
     dash_app.run_server(debug=True)

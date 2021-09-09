@@ -31,23 +31,32 @@ def generate_column_chart(df):
     #### create bar chart by time of day ####
 
     # aggregate data by period
-    df_col = df.groupby(['occur_period']).agg(crimes=('offense_id', len)).reset_index()
+    df_col = df.groupby(['occur_period', 'occur_hour']).agg(crimes=('offense_id', len)).reset_index()
     
     # create bar chart
-    fig_col = px.bar(df_col, x = 'occur_period', y = 'crimes', text = 'crimes',
+    fig_col = px.bar(df_col, x = 'occur_hour', y = 'crimes',
         template='simple_white',
+        color="occur_period",
         height=250,
-        color_discrete_sequence=["#A9A9A9"],
+        color_discrete_sequence=["#cccccc", "#969696", "#636363", "#252525"],
         category_orders={"occur_period": ["Morning", "Afternoon", "Evening", "Night"]})
     
     # remove y-axis, remove x-axis title from bar chart
     fig_col.update_layout(
         margin=dict(l=10, r=10, t=10, b=10),
-        xaxis_title=None, yaxis=dict(visible=False)
+        xaxis_title=None, yaxis=dict(visible=False),
+        legend=dict(
+            orientation='h',
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+            title=''
+        ),
     )
 
     # format bar chart text labels
-    fig_col.update_traces(texttemplate='%{text:,}', textposition='auto')
+    # fig_col.update_traces(texttemplate='%{text:,}', textposition='auto')
     
     return fig_col
 
@@ -77,7 +86,7 @@ def generate_map(df, zoom, map_style):
         },
         size_max=14,
         zoom=zoom,  
-        height = 400,
+        height = 500,
     )
 
     if len(df.neighborhood.unique()) > 1:
@@ -137,7 +146,7 @@ def generate_dot_plot(df):
     
     return fig_dot
 
-def generate_trend_chart(df):
+def generate_7d_trend_chart(df):
 
     #### create trend chart ####
 
@@ -152,6 +161,36 @@ def generate_trend_chart(df):
     df_lines = df_lines.rolling(window = 7).mean()
 
     # create trend chart
+    fig_lines = px.line(
+        df_lines,
+        x=df_lines.index, y="crimes",
+        template='simple_white',
+        color_discrete_map={"crimes": "#darkblue"},
+        height=200
+    )
+    
+    # set chart margins
+    fig_lines.update_layout(
+        margin=dict(l=10, r=10, t=10, b=10),
+        xaxis=dict(visible=True, title=None, tickangle=-45), #tickfont=dict(size=10)),
+        yaxis=dict(visible=True, title=None)
+    )
+
+    return fig_lines
+
+def generate_trend_chart(df):
+
+    #### create trend chart ####
+
+    # sort by occurrence date
+    df.sort_values(by=['occur_datetime'], inplace=True, ascending=True)
+    
+    # aggregate data by date
+    df_lines = df.groupby(['occur_datetime']).agg(crimes=('offense_id', len))
+    
+    # create 7-day moving average
+    # will need to alter to include all dates (see pandas date_range function)
+    
     fig_lines = px.line(
         df_lines,
         x=df_lines.index, y="crimes",
