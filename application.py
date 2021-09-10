@@ -100,30 +100,26 @@ dash_app.layout = dbc.Container(
                     id="atl-map",
                     config={'displayModeBar': False}
                     ),
-            width = 12)
-        ]),
-        dbc.Row([
+            lg = 6),
             dbc.Col([ # R4C2       
-                html.P("2021 Crime Trend, 7-Day Moving Average", style={'font-size':14}),
-                dcc.Graph(
-                    id='crime-trend',
-                    config={'displayModeBar': False}
-                ),
-            ], md=3),
-            dbc.Col([
-                html.P("Crimes by Offense, 2021 vs. 2020", style={'font-size':14}),
-                dcc.Graph(
-                    id='crime-dots',
-                    config={'displayModeBar': False}
+                    html.P("2021 Crime Trend, 7-Day Moving Average", style={'font-size':14}),
+                    dcc.Graph(
+                        id='crime-trend',
+                        config={'displayModeBar': False}
                     ),
-            ], md=3) ,
+            ], lg=3),
             dbc.Col([
-                html.P("2021 Crimes by Hour of Day", style={'font-size':14}),
-                dcc.Graph(
-                    id='crime-cols',
-                    config={'displayModeBar': False}
+                    html.P("2021 Crimes by Hour of Day", style={'font-size':14}),
+                    dcc.Graph(
+                        id='crime-cols',
+                        config={'displayModeBar': False}
                     ),
-            ], md=3)           
+                    html.P("Crimes by Offense, 2021 vs. 2020", style={'font-size':14}),
+                    dcc.Graph(
+                        id='crime-dots',
+                        config={'displayModeBar': False}
+                        ),
+            ], lg=3),                    
         ]),
         # row 6 - beneath the map
         dbc.Row([
@@ -133,7 +129,7 @@ dash_app.layout = dbc.Container(
                     for m in map_styles],
                 multi=False,
                 clearable=False,
-                value="carto-darkmatter"), width={"size": 3},)
+                value="carto-positron"), width={"size": 3},)
         ])
     ], # close children
     fluid = True,

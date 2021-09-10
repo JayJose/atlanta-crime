@@ -73,7 +73,7 @@ def generate_map(df, zoom, map_style):
         df, lat="lat", lon="long",
         color="scaled_occur_day",
         color_discrete_sequence=px.colors.qualitative.T10,
-        color_continuous_scale='hot',
+        color_continuous_scale='greys', # hot
         opacity=0.80,
         hover_name="Crime",
         hover_data={
@@ -91,8 +91,8 @@ def generate_map(df, zoom, map_style):
         height = 500,
     )
 
-    if len(df.neighborhood.unique()) > 1:
-        fig_map.update_mapboxes(center=center)
+    # if len(df.neighborhood.unique()) > 1:
+    #     fig_map.update_mapboxes(center=center)
 
     # add pitch
     fig_map.update_mapboxes(pitch=30)
