@@ -9,7 +9,9 @@ def generate_bar_chart(df):
     df_bar = df.groupby(['Crime']).agg(crimes=('offense_id', len)).reset_index()
     
     # create bar chart
-    fig_bar = px.bar(df_bar.sort_values(by='crimes'), x = 'crimes', y = 'Crime', text = 'crimes',
+    fig_bar = px.bar(
+        df_bar.sort_values(by='crimes'),
+        x = 'crimes', y = 'Crime', text = 'crimes',
         orientation='h',
         template='simple_white',
     )
@@ -123,7 +125,7 @@ def generate_dot_plot(df):
         df_bar.sort_values(by='crimes'), x = 'crimes', y = 'Crime',
         log_x=False,
         category_orders={"year": ["2020", "2021"]},
-        color = 'year', color_discrete_sequence=["#989898", "#F00000"],
+        color = 'year', color_discrete_sequence=["#989898", "#252525"],
         template='simple_white',
         height = 200,
     )
@@ -166,7 +168,8 @@ def generate_7d_trend_chart(df):
         x=df_lines.index, y="crimes",
         template='simple_white',
         color_discrete_map={"crimes": "#darkblue"},
-        height=200
+        height=200,
+        color_discrete_sequence=["#252525"]
     )
     
     # set chart margins
@@ -195,8 +198,8 @@ def generate_trend_chart(df):
         df_lines,
         x=df_lines.index, y="crimes",
         template='simple_white',
-        color_discrete_map={"crimes": "#darkblue"},
-        height=200
+        height=200,
+        color_discrete_sequence=["#252525"]
     )
     
     # set chart margins

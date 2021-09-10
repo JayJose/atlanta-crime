@@ -48,7 +48,7 @@ dash_app.layout = dbc.Container(
                     f"Data updated through {last_date:%b %d %Y}",
                     href='https://www.atlantapd.org/i-want-to/crime-data-downloads'
                 ),
-                md=3
+                sm=3
             ),
             dbc.Col([ # R2C2
                 dcc.Dropdown(
@@ -57,7 +57,7 @@ dash_app.layout = dbc.Container(
                         for n in df[df.year=='2021'].neighborhood.sort_values().astype(str).unique()],
                     multi=True,
                     placeholder="Filter by neighborhood(s)")
-            ], md=3
+            ], sm=3
             ),
             dbc.Col([ # R2C3
                 dcc.Dropdown(
@@ -66,7 +66,7 @@ dash_app.layout = dbc.Container(
                         for c in df[df.year=='2021'].Crime.sort_values().astype(str).unique()],
                     multi=True,
                     placeholder = "Filter by crime(s)")
-            ], md=3
+            ], sm=3
             ),
             dbc.Col([ # R2C4
                 dcc.Dropdown(
@@ -80,7 +80,7 @@ dash_app.layout = dbc.Container(
                     multi=False,
                     clearable=False
                 )
-            ], md=3
+            ], sm=3
             ),
         ]), # end R2
         html.Br(),
@@ -90,7 +90,7 @@ dash_app.layout = dbc.Container(
                     id='crime-statement',
                     style={'font-size':14}
                 )
-            ], md=12),
+            ], md=12),            
         ]), # end R4
         dbc.Row([ # begin R4
         ]), # end R4
@@ -104,7 +104,7 @@ dash_app.layout = dbc.Container(
         ]),
         dbc.Row([
             dbc.Col([ # R4C2       
-                html.P("Crime Trend, 7-Day Moving Average", style={'font-size':14}),
+                html.P("2021 Crime Trend, 7-Day Moving Average", style={'font-size':14}),
                 dcc.Graph(
                     id='crime-trend',
                     config={'displayModeBar': False}
@@ -116,7 +116,14 @@ dash_app.layout = dbc.Container(
                     id='crime-dots',
                     config={'displayModeBar': False}
                     ),
-            ], md=3)            
+            ], md=3) ,
+            dbc.Col([
+                html.P("2021 Crimes by Hour of Day", style={'font-size':14}),
+                dcc.Graph(
+                    id='crime-cols',
+                    config={'displayModeBar': False}
+                    ),
+            ], md=3)           
         ]),
         # row 6 - beneath the map
         dbc.Row([
@@ -139,6 +146,7 @@ dash_app.layout = dbc.Container(
 @dash_app.callback(
     Output('atl-map', 'figure'),
     Output('crime-dots', 'figure'),
+    Output('crime-cols', 'figure'),    
     Output('crime-trend', 'figure'),
     Output('crime-statement', 'children'),
     Input('nhood-dropdown', 'value'),
@@ -171,11 +179,10 @@ def update_map(neighborhood, crimes, map_style, period):
     else:
         fig_trend = generate_7d_trend_chart(df_map[df_map.year == '2021'])
     
-    print(period)
-    fig_column = generate_column_chart(df_map)
+    fig_column = generate_column_chart(df_map[df_map.year == '2021'])
     
     #fig_bar = generate_bar_chart(df_map)
-    #fig_dot = generate_dot_plot(df_map)
+    fig_dot = generate_dot_plot(df_map)
 
     # create date range label - "from X to Y"
     date_format = '%b %d %Y'
@@ -189,9 +196,9 @@ def update_map(neighborhood, crimes, map_style, period):
     chg = len(df_map[df_map.year=='2021'])/len(df_map[df_map.year=='2020']) - 1
 
     # create summary
-    crime_stmt = f"{crime_cnt:,} crimes occured between {start_as_date:%b %d %Y} and {end_as_date:%b %d %Y}. {'An increase' if chg >= 0 else 'A decrease'} of {chg:3.1%} compared to the same period in 2020."
+    crime_stmt = f"{crime_cnt:,} crimes occured between {start_as_date:%b %d %Y} and {end_as_date:%b %d %Y}. {chr(10)}{'An increase' if chg >= 0 else 'A decrease'} of {chg:3.1%} compared to the same period in 2020."
 
-    return fig_map, fig_column, fig_trend, crime_stmt
+    return fig_map, fig_dot, fig_column, fig_trend, crime_stmt
 
 if __name__ == '__main__':
     dash_app.run_server(debug=True)
