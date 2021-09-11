@@ -20,7 +20,7 @@ df = generate_data(env='cloud')
 first_date = df[df.year=='2021']['occur_datetime'].dt.date.min()
 first_day = df[df.year=='2021']['occur_day'].min()
 last_date = df[df.year=='2021']['occur_datetime'].dt.date.max()
-last_day = df[df.year=='2021']['occur_day'].max()
+last_day = (df[df.year=='2021']['occur_day'].max() - 1)
 
 # styling
 map_styles = ['open-street-map', 'carto-positron', 'carto-darkmatter', 'stamen-terrain', 'stamen-toner']
