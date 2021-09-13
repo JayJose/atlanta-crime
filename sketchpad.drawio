@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="fnI3_iQXw4OiTnrx4XOU" name="update">
-        <mxGraphModel dx="391" dy="474" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="1111" dy="677" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="6JDjqdKQVHiy1O1jxpU0-0"/>
                 <mxCell id="6JDjqdKQVHiy1O1jxpU0-1" parent="6JDjqdKQVHiy1O1jxpU0-0"/>
@@ -32,7 +32,7 @@
                 <mxCell id="6JDjqdKQVHiy1O1jxpU0-16" value="" style="rounded=1;whiteSpace=wrap;html=1;" parent="6JDjqdKQVHiy1O1jxpU0-1" vertex="1">
                     <mxGeometry x="530" y="150" width="270" height="130" as="geometry"/>
                 </mxCell>
-                <mxCell id="6JDjqdKQVHiy1O1jxpU0-17" value="Execute Blob2Cosmos" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="6JDjqdKQVHiy1O1jxpU0-1" vertex="1">
+                <mxCell id="6JDjqdKQVHiy1O1jxpU0-17" value="Execute GenerateCrime" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="6JDjqdKQVHiy1O1jxpU0-1" vertex="1">
                     <mxGeometry x="530" y="130" width="270" height="20" as="geometry"/>
                 </mxCell>
                 <mxCell id="6JDjqdKQVHiy1O1jxpU0-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="6JDjqdKQVHiy1O1jxpU0-1" edge="1">
@@ -40,12 +40,6 @@
                         <mxPoint x="628" y="215" as="sourcePoint"/>
                         <mxPoint x="690" y="215" as="targetPoint"/>
                     </mxGeometry>
-                </mxCell>
-                <mxCell id="6JDjqdKQVHiy1O1jxpU0-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.469;entryY=-0.031;entryDx=0;entryDy=0;entryPerimeter=0;" parent="6JDjqdKQVHiy1O1jxpU0-1" source="6JDjqdKQVHiy1O1jxpU0-22" target="6JDjqdKQVHiy1O1jxpU0-31" edge="1">
-                    <mxGeometry relative="1" as="geometry"/>
-                </mxCell>
-                <mxCell id="6JDjqdKQVHiy1O1jxpU0-22" value="" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/databases/Azure_Cosmos_DB.svg;" parent="6JDjqdKQVHiy1O1jxpU0-1" vertex="1">
-                    <mxGeometry x="690" y="180" width="60" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="6JDjqdKQVHiy1O1jxpU0-23" value="Raw" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/storage/Storage_Accounts.svg;" parent="6JDjqdKQVHiy1O1jxpU0-1" vertex="1">
                     <mxGeometry x="190" y="185" width="68.75" height="55" as="geometry"/>
@@ -62,11 +56,20 @@
                 <mxCell id="6JDjqdKQVHiy1O1jxpU0-29" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="6JDjqdKQVHiy1O1jxpU0-1" source="6JDjqdKQVHiy1O1jxpU0-28" target="6JDjqdKQVHiy1O1jxpU0-4" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="6JDjqdKQVHiy1O1jxpU0-28" value="Every Friday morning" style="aspect=fixed;html=1;points=[];align=left;image;fontSize=12;image=img/lib/azure2/iot/Logic_Apps.svg;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;" parent="6JDjqdKQVHiy1O1jxpU0-1" vertex="1">
+                <mxCell id="6JDjqdKQVHiy1O1jxpU0-28" value="Every Friday morning at 6 AM EDT/EST" style="aspect=fixed;html=1;points=[];align=left;image;fontSize=12;image=img/lib/azure2/iot/Logic_Apps.svg;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;" parent="6JDjqdKQVHiy1O1jxpU0-1" vertex="1">
                     <mxGeometry x="50" y="9.999999999999998" width="67" height="52" as="geometry"/>
                 </mxCell>
+                <mxCell id="5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.484;entryY=0.99;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="6JDjqdKQVHiy1O1jxpU0-1" source="6JDjqdKQVHiy1O1jxpU0-31" target="4">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
                 <mxCell id="6JDjqdKQVHiy1O1jxpU0-31" value="Atlanta Crime Web App" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/compute/App_Services.svg;" parent="6JDjqdKQVHiy1O1jxpU0-1" vertex="1">
-                    <mxGeometry x="690" y="350" width="64" height="64" as="geometry"/>
+                    <mxGeometry x="692.37" y="360" width="64" height="64" as="geometry"/>
+                </mxCell>
+                <mxCell id="0" value="Create &quot;clean 2020 data (doesn't change)&quot;&lt;br&gt;&lt;br&gt;Each week, a notebook gets data from Blob and writes to SQL&lt;br&gt;&lt;br&gt;A view is created that combines 2020 and 2021 data together and is what is pulled into the web app&lt;br&gt;&lt;br&gt;A flat file is stored in blob and serves as input to the Crime app&lt;br&gt;&lt;br&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="6JDjqdKQVHiy1O1jxpU0-1">
+                    <mxGeometry x="44.38" y="350" width="360" height="210" as="geometry"/>
+                </mxCell>
+                <mxCell id="4" value="Certified" style="aspect=fixed;html=1;points=[];align=center;image;fontSize=12;image=img/lib/azure2/storage/Storage_Accounts.svg;" vertex="1" parent="6JDjqdKQVHiy1O1jxpU0-1">
+                    <mxGeometry x="690" y="180" width="68.75" height="55" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>

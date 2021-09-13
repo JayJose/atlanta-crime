@@ -210,3 +210,40 @@ def generate_trend_chart(df):
     )
 
     return fig_lines
+
+def generate_hbar_plot(df):
+
+    #### create dot plot by crime ####
+
+    # aggregate data by period
+    df_bar = df.groupby(['Crime', 'year']).agg(crimes=('offense_id', len)).reset_index()
+    df_bar = df_bar[df_bar.Crime != 'Manslaughter']
+    
+    # create dot plot
+    fig_dot = px.bar(
+        df_bar.sort_values(by='crimes'), x = 'crimes', y = 'Crime',
+        orientation='h', barmode='group',
+        log_x=False,
+        category_orders={"year": ["2020", "2021"]},
+        color = 'year', color_discrete_sequence=["#989898", "#252525"],
+        template='simple_white',
+        height = 200,
+    )
+    
+    # remove x-axis, remove y-axis title from dot plot
+    fig_dot.update_layout(
+        margin=dict(l=10, r=10, t=10, b=10),
+        yaxis=dict(title=None, tickangle=0, tickfont=dict(size=10)),
+        xaxis=dict(visible=True, title=None),
+        legend=dict(
+            orientation='h',
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1,
+            title=''
+        ),
+        #plot_bgcolor='#F5F5F5'
+    )
+    
+    return fig_dot    

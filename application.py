@@ -107,6 +107,11 @@ dash_app.layout = dbc.Container(
                         id='crime-trend',
                         config={'displayModeBar': False}
                     ),
+                    html.P("Crimes by Offense, 2021 vs. 2020", style={'font-size':14}),
+                    dcc.Graph(
+                        id='crime-dots',
+                        config={'displayModeBar': False}
+                        ),                    
             ], lg=3),
             dbc.Col([
                     html.P("2021 Crimes by Hour of Day", style={'font-size':14}),
@@ -114,11 +119,6 @@ dash_app.layout = dbc.Container(
                         id='crime-cols',
                         config={'displayModeBar': False}
                     ),
-                    html.P("Crimes by Offense, 2021 vs. 2020", style={'font-size':14}),
-                    dcc.Graph(
-                        id='crime-dots',
-                        config={'displayModeBar': False}
-                        ),
             ], lg=3),                    
         ]),
         # row 6 - beneath the map
@@ -178,7 +178,7 @@ def update_map(neighborhood, crimes, map_style, period):
     fig_column = generate_column_chart(df_map[df_map.year == '2021'])
     
     #fig_bar = generate_bar_chart(df_map)
-    fig_dot = generate_dot_plot(df_map)
+    fig_dot = generate_hbar_plot(df_map)
 
     # create date range label - "from X to Y"
     date_format = '%b %d %Y'
