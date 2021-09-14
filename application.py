@@ -170,10 +170,15 @@ def update_map(neighborhood, crimes, map_style, period):
     # create charts
     fig_map = generate_map(df_map[df_map.year == '2021'], zoom, map_style)
     
+    trend_start = df_map[df_map.year == '2021'].occur_datetime.min()
+    trend_stop = df_map[df_map.year == '2021'].occur_datetime.max()
+
+    print(trend_start, trend_stop)
+
     if period == 'last_week':
-        fig_trend = generate_trend_chart(df_map[df_map.year == '2021'])
+        fig_trend = generate_trend_chart(df=df_map[df_map.year == '2021'], start=trend_start, end=trend_stop)
     else:
-        fig_trend = generate_7d_trend_chart(df_map[df_map.year == '2021'])
+        fig_trend = generate_7d_trend_chart(df_map[df_map.year == '2021'], start=trend_start, end=trend_stop)
     
     fig_column = generate_column_chart(df_map[df_map.year == '2021'])
     

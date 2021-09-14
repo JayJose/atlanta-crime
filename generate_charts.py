@@ -1,5 +1,17 @@
-from pandas.core.frame import DataFrame
+#from pandas.core.frame import DataFrame
+import pandas as pd
+import numpy as np
 import plotly.express as px
+
+def densify_it(gaping_df, start, end):
+
+    dates = pd.date_range(start=start, end=end)
+    dense_df = pd.DataFrame(dates, columns=['occur_datetime'])
+    dense_df['crimes'] = 0
+    dense_df.set_index('occur_datetime', inplace=True)
+    dense_lines = pd.merge(dense_df, gaping_df, how='left', left_index=True, right_index=True)
+    dense_lines['crimes'] = np.where(dense_lines['crimes_y'].isna(), 0, dense_lines['crimes_y'])
+    return dense_lines
 
 def generate_bar_chart(df):
 
@@ -148,7 +160,7 @@ def generate_dot_plot(df):
     
     return fig_dot
 
-def generate_7d_trend_chart(df):
+def generate_7d_trend_chart(df, start, end):
 
     #### create trend chart ####
 
@@ -158,14 +170,16 @@ def generate_7d_trend_chart(df):
     # aggregate data by date
     df_lines = df.groupby(['occur_datetime']).agg(crimes=('offense_id', len))
     
+    df_dense = densify_it(df_lines, start=start, end=end)
+
     # create 7-day moving average
     # will need to alter to include all dates (see pandas date_range function)
-    df_lines = df_lines.rolling(window = 7).mean()
+    df_dense = df_dense.rolling(window = 7).mean()
 
     # create trend chart
     fig_lines = px.line(
-        df_lines,
-        x=df_lines.index, y="crimes",
+        df_dense,
+        x=df_dense.index, y="crimes",
         template='simple_white',
         color_discrete_map={"crimes": "#darkblue"},
         height=200,
@@ -181,7 +195,7 @@ def generate_7d_trend_chart(df):
 
     return fig_lines
 
-def generate_trend_chart(df):
+def generate_trend_chart(df, start, end):
 
     #### create trend chart ####
 
@@ -191,12 +205,14 @@ def generate_trend_chart(df):
     # aggregate data by date
     df_lines = df.groupby(['occur_datetime']).agg(crimes=('offense_id', len))
     
+    df_dense = densify_it(df_lines, start=start, end=end)
+
     # create 7-day moving average
     # will need to alter to include all dates (see pandas date_range function)
     
     fig_lines = px.line(
-        df_lines,
-        x=df_lines.index, y="crimes",
+        df_dense,
+        x=df_dense.index, y="crimes",
         template='simple_white',
         height=200,
         color_discrete_sequence=["#252525"]
