@@ -139,7 +139,7 @@ def generate_dot_plot(df):
         category_orders={"year": ["2020", "2021"]},
         color = 'year', color_discrete_sequence=["#989898", "#252525"],
         template='simple_white',
-        height = 200,
+        height = 250,
     )
     
     # remove x-axis, remove y-axis title from dot plot
@@ -182,7 +182,7 @@ def generate_7d_trend_chart(df, start, end):
         x=df_dense.index, y="crimes",
         template='simple_white',
         color_discrete_map={"crimes": "#darkblue"},
-        height=200,
+        height=250,
         color_discrete_sequence=["#252525"]
     )
     
@@ -214,7 +214,7 @@ def generate_trend_chart(df, start, end):
         df_dense,
         x=df_dense.index, y="crimes",
         template='simple_white',
-        height=200,
+        height=250,
         color_discrete_sequence=["#252525"]
     )
     
@@ -237,13 +237,13 @@ def generate_hbar_plot(df):
     
     # create dot plot
     fig_dot = px.bar(
-        df_bar.sort_values(by='crimes'), x = 'crimes', y = 'Crime',
+        df_bar.sort_values(by=['crimes']), x = 'crimes', y = 'Crime',
         orientation='h', barmode='group',
         log_x=False,
         category_orders={"year": ["2020", "2021"]},
         color = 'year', color_discrete_sequence=["#989898", "#252525"],
         template='simple_white',
-        height = 200,
+        height = 250,
     )
     
     # remove x-axis, remove y-axis title from dot plot
