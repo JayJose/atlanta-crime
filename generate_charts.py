@@ -74,7 +74,7 @@ def generate_column_chart(df):
     
     return fig_col
 
-def generate_map(df, zoom, map_style):
+def generate_map(df, zoom, map_style='carto-positron'):
     
     #### create map #### 
 
@@ -265,7 +265,7 @@ def generate_hbar_plot(df):
     return fig_dot    
 
 
-def generate_density_map(df, zoom, map_style):
+def generate_density_map(df, zoom, map_style='carto-positron'):
     
     #### create map #### 
 
@@ -273,7 +273,9 @@ def generate_density_map(df, zoom, map_style):
     center = dict(lat=33.747583, lon=-84.421331)
 
     fig_map = px.density_mapbox(
-        df, lat="lat", lon="long", z='offense_id', radius=3,
+        df,
+        lat="lat", lon="long", z='offense_id',
+        radius=3,
         zoom=zoom,  
         height = 500,
     )

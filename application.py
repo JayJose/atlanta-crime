@@ -124,12 +124,11 @@ dash_app.layout = dbc.Container(
         # row 6 - beneath the map
         dbc.Row([
             dbc.Col(dcc.Dropdown(
-                id='layer-dropdown',
-                options=[{"value": m, "label": m}
-                    for m in map_styles],
+                id='density-dropdown',
+                options=[{"value": 'density-off', "label": 'Density Off'}, {"value": 'density-on', "label": 'Density On'}],
                 multi=False,
                 clearable=False,
-                value="carto-positron"), width={"size": 3},)
+                value="density-off"), width={"size": 3},)
         ])
     ], # close children
     fluid = True,
@@ -147,10 +146,10 @@ dash_app.layout = dbc.Container(
     Output('crime-statement', 'children'),
     Input('nhood-dropdown', 'value'),
     Input('crime-dropdown', 'value'),    
-    Input('layer-dropdown', 'value'),
+    Input('density-dropdown', 'value'),
     Input('period-dropdown', 'value')
 )
-def update_map(neighborhood, crimes, map_style, period):
+def update_map(neighborhood, crimes, density_style, period):
 
     periods = {
         'year_to_date': [first_day, last_day],
@@ -168,12 +167,13 @@ def update_map(neighborhood, crimes, map_style, period):
         zoom = 10.5
 
     # create charts
-    fig_map = generate_density_map(df_map[df_map.year == '2021'], zoom, map_style)
+    if density_style == 'density-off':
+        fig_map = generate_map(df_map[df_map.year == '2021'], zoom)
+    elif density_style == 'density-on':
+        fig_map = generate_density_map(df_map[df_map.year == '2021'], zoom)
     
     trend_start = df_map[df_map.year == '2021'].occur_datetime.min()
     trend_stop = df_map[df_map.year == '2021'].occur_datetime.max()
-
-    print(trend_start, trend_stop)
 
     if period == 'last_week':
         fig_trend = generate_trend_chart(df=df_map[df_map.year == '2021'], start=trend_start, end=trend_stop)
