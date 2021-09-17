@@ -168,7 +168,7 @@ def update_map(neighborhood, crimes, map_style, period):
         zoom = 10.5
 
     # create charts
-    fig_map = generate_map(df_map[df_map.year == '2021'], zoom, map_style)
+    fig_map = generate_density_map(df_map[df_map.year == '2021'], zoom, map_style)
     
     trend_start = df_map[df_map.year == '2021'].occur_datetime.min()
     trend_stop = df_map[df_map.year == '2021'].occur_datetime.max()

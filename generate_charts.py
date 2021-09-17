@@ -263,3 +263,38 @@ def generate_hbar_plot(df):
     )
     
     return fig_dot    
+
+
+def generate_density_map(df, zoom, map_style):
+    
+    #### create map #### 
+
+    # create map
+    center = dict(lat=33.747583, lon=-84.421331)
+
+    fig_map = px.density_mapbox(
+        df, lat="lat", lon="long", z='offense_id', radius=3,
+        zoom=zoom,  
+        height = 500,
+    )
+
+    # if len(df.neighborhood.unique()) > 1:
+    #     fig_map.update_mapboxes(center=center)
+
+    # add pitch
+    fig_map.update_mapboxes(pitch=30)
+
+    # set margin, remove legend
+    fig_map.update_layout(
+        legend=dict(
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=0.01),
+            coloraxis_showscale=False,
+            margin=dict(l=10, r=10, t=10, b=10),
+            mapbox_style=map_style,
+            uirevision=True,
+    )
+
+    return fig_map
