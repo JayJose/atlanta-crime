@@ -14,7 +14,7 @@ from get_data import *
 from generate_charts import *
 
 # get crime data
-df = generate_data(env='cloud')
+df = get_data() #generate_data(env='cloud')
 
 # first and last days in 2021 data
 first_date = df[df.year=='2021']['occur_datetime'].dt.date.min()
