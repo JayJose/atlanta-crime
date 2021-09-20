@@ -96,3 +96,9 @@ def generate_map_data(df, neighborhood, crimes, period):
     df_map = df_map[(df_map['occur_day'] >= min_day) & (df_map['occur_day'] <= max_day)]
     
     return df_map
+
+def get_data():
+    df = pd.read_csv('https://sacrimeapp.blob.core.windows.net/crime-data/certified/crime_data.csv')
+    df['occur_datetime'] = pd.to_datetime(df['occur_datetime'])
+    df['year'] = df.year.astype(str)
+    return df
